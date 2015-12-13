@@ -116,6 +116,7 @@ throughout. We compute the decomposition of $Y^K$ in batches, which
 introduces a new batch size parameter $l$. Also important is the
 initialization of $Y^0$, for which the authors provide helpful
 strategies. Finally, we use the relative error
+
 $\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
 criterion; we terminate when this drops below a small $\epsilon$.
 
@@ -123,6 +124,8 @@ criterion; we terminate when this drops below a small $\epsilon$.
 
 \section{Results and Discussion}
 \subsection{Synthetic Data}
+
+\input{svt_synth.tex}
 
 \subsection{Jester Dataset}
 

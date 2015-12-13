@@ -1,0 +1,34 @@
+\begin{table}[H!]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+size ($n \times n$) & rank ($r$) & $m/d_r$ & $m/n^2$ & time (s) & \#iters & relative error \\
+\hline
+1000 & 10 & 6 & 0.119 & 279.1 & 250.0 & 86.59246 x $10^{-4}$ \\
+\hline
+1000 & 50 & 4 & 0.390 & 800.4 & 220.4 & 0.99209 x $10^{-4}$ \\
+\hline
+1000 & 100 & 3 & 0.570 & 604.6 & 163.8 & 0.98189 x $10^{-4}$ \\
+\hline
+5000 & 10 & 6 & 0.024 & 12934.9 & 250.0 & 611.42446 x $10^{-4}$ \\
+\hline
+5000 & 50 & 5 & 0.100 & - & - & - \\
+\hline
+5000 & 100 & 4 & 0.158 & - & - & - \\
+\hline
+10000 & 10 & 6 & 0.012 & - & - & - \\
+\hline
+10000 & 50 & 5 & 0.050 & - & - & - \\
+\hline
+10000 & 100 & 4 & 0.080 & - & - & - \\
+\hline
+20000 & 10 & 6 & 0.006 & - & - & - \\
+\hline
+20000 & 50 & 5 & 0.025 & - & - & - \\
+\hline
+30000 & 10 & 6 & 0.004 & - & - & - \\
+\hline
+\end{tabular}
+\caption{Performance of Singular Value Thresholding on synthetic matrices of known rank. We generate two $n\times r$ matrices $U$ and $V$ whose entries are i.i.d. gaussian.We choose $m$ random entries from $M = U V^T$ and measure convergence rates of SVT. $m/d_r$ is the ratio of sampled entries $m$ and the "true dimensionality" $d_r = r(2n-r)$.}
+\label{table:svt_synth_1}
+\end{table}
