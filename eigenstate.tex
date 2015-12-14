@@ -1,0 +1,175 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{nips15submit_e,times}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{graphicx}
+%\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
+
+
+\title{Singular Value Thresholding for Matrix Completion}
+
+
+\author{
+Sriram Ganesan\thanks{ The names are printed in alphabetical order by last name.} \\
+\texttt{sriramg@umich.edu} \\
+\And
+Nitin Garg \\
+\texttt{gargn@umich.edu} \\
+\AND
+Jeeheh Oh \\
+\texttt{jeeheh@umich.edu} \\
+\And
+Jonathan Stroud \\
+\texttt{stroud@umich.edu} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\nipsfinalcopy % Uncomment for camera-ready version
+
+\begin{document}
+
+
+\maketitle
+
+\begin{abstract}
+%\input{abstract}
+\end{abstract}
+
+\section{Introduction}
+
+\section{Different Algorithms}
+
+\subsection{Baseline Algorithm (Eigentaste)}
+
+Eigentaste is a collaborative filtering algorithm which applies principal component analysis to the dense subset of user ratings, thus facilitating dimensionality reduction for offline clusters and rapid computation of recommendations. 
+Mean rating of the jth item in the gauge set is given by
+\begin{equation*}
+\mu_{ij}=\frac{1}{n}{\sum_{i\epsilon U_{j}}}\widetilde{r}_{ij}\\
+\end{equation*}
+\begin{equation*}
+\sigma_j^2=\frac{1}{n-1}{\sum_{i\epsilon U_{j}}}({\widetilde{r}_{ij}-\mu_{j}})^{2}
+\end{equation*}
+
+In A, the normalized rating $r_{ij}$ is set to $({\widetilde{r}_{ij}-\mu_{j}})/\sigma _{j}$ . The global correlation matrix is given by
+\begin{equation*}
+C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
+\end{equation*}
+
+The data is projected along the first v eigenvectors x=R${E_{v}}^{T}$
+
+\textit{Recursive Rectangular Clustering: }
+
+1). Find the minimal rectangular cell that encloses all the points in the eigenplane. \\
+2) Bisect along x and y axis to form 4 rectangular sub-cells.\\
+3) Bisect the cells in step 2 with origin as a vertex to form sub-cells at next hierarchial level.
+
+ \textit{Online Computation of Recommendations}
+
+1) Collect ratings of all items in gauge set.\\
+2) Use PCA to project this vector to eigenplane.\\
+3) Find the representative cluster.\\
+4) Look up appropriate recommendations, present them to the new user, and collect ratings.
+
+
+
+
+\subsection{SMC}
+%\input{smc}
+
+\subsection{Singular Value Thresholding}
+
+Singular Value Thresholding (SVT) \cite{cai2010singular} is an
+algorithm proposed for \emph{nuclear norm minimization} of a matrix
+$X$ from a few known entries $M_{ij}, (i,j) \in \Omega$. Formally, SVT
+addresses the optimization problem
+
+\begin{equation*}
+\begin{aligned}
+  & \underset{X}{\text{minimize}} & & \|X\|_{*} \\
+  & \text{subject to}             & & \mathcal{P}_\Omega (X) =
+  \mathcal{P}_\Omega (M), \\
+\end{aligned}
+\end{equation*}
+
+where $\|\cdot\|_{*}$ is the \emph{nuclear norm}, or the sum of the
+singular values and $\mathcal{P}_\Omega (\cdot)$ makes zero all
+entries $(i, j) \notin \Omega$. This can be thought of as a convex
+relaxation to the rank minimization problem, and the two are formally
+equivalent under some conditions. The rank minimization problem is,
+however, highly non-convex and therefore not a suitable candidate for
+black-box optimization algorithms.
+
+Singular Value Thresholding works by iteratively constructing $X$
+using a low-rank, low-singular value approximation to an auxiliary
+sparse matrix $Y$. $Y$ is then adjusted to ensure the resulting
+approximation in the subsequent step has matching entries
+$X_{ij} = M_{ij}$. Each iteration consists of the inductive steps
+
+\begin{equation*}
+\begin{cases}
+X^{k} = \mathrm{shrink}(Y^{k-1}, \tau) \\
+Y^{k} = Y^{k-1} + \delta_k \mathcal{P}_\Omega (M-X^{k}),              \\
+\end{cases}
+\end{equation*}
+
+where $\mathrm{shrink}(\cdot, \cdot)$ is the \emph{singular value
+  shrinkage operator}. Given a singular value decomposition $X = U
+\Sigma V^T$, $\Sigma = \mathrm{diag}(\{\sigma_i\}_{1 \le i \le r})$, we
+  can write this as
+
+\begin{equation*}
+\mathrm{shrink}(X, \tau) = U\Sigma_\tau V^T, \ \ \Sigma_\tau = \mathrm{diag}(\{(\sigma_i-\tau)_{+}\}).
+\end{equation*} 
+
+These two operations, when repeated, approach a low-nuclear norm
+solution by repeatedly shrinking the singular values of X. This
+algorithm has shown success in recovering accurate low-rank solutions
+when the source of $M$ is also low-rank, even though it does not
+optimize this objective directly. The original authors discuss its
+theoretical guarantees in detail, but we choose to omit them in this
+discussion.
+
+In practice, this system has a number of hyperparameters that must be
+carefully tuned to guarantee convergence. The shrinkage value $\tau$
+must be set fairly high in order for the algorithm to converge
+quickly, but not too high that it dwarfs the true singular values. The
+stepsizes $\delta_k$ are similarly sensitive. These can be set
+dynamically as well, though we choose to maintain a fixed stepsize
+throughout. We compute the decomposition of $Y^K$ in batches, which
+introduces a new batch size parameter $l$. Also important is the
+initialization of $Y^0$, for which the authors provide helpful
+strategies. Finally, we use the relative error
+
+$\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
+criterion; we terminate when this drops below a small $\epsilon$.
+
+
+
+\section{Results and Discussion}
+\subsection{Synthetic Data}
+
+%\input{svt_synth.tex}
+
+\subsection{Jester Dataset}
+
+\section{Conclusions}
+
+\section{Future Work}
+
+
+\bibliographystyle{plain}
+\bibliography{writeup}
+
+\end{document}
