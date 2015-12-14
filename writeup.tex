@@ -42,25 +42,100 @@ Jonathan Stroud \\
 \maketitle
 
 \begin{abstract}
-\input{abstract}
+%\input{abstract}
 \end{abstract}
 
 \section{Introduction}
 
+\emph{Collaborative Filtering} is the process of learning patterns by
+aggregating information over multiple sources of data, typically
+multiple users of the same system. These techniques have been applied
+effectively on many difficult problems, most notably on recommender
+systems such as those found on Netflix, Amazon, Spotify, and others.
+The goal of these systems is to produce targeted product
+recommendations for individual users given the products the user has
+previously viewed or rated. Users have typically viewed or rated only
+a small subset of the available products, and different users
+typically have not rated the same set of products. These problems do
+not easily lie into any supervised learning framework, so we instead
+employ the framework of \emph{matrix completion}.
+
+In matrix completion, we reconstruct a matrix $M$ from a set of known
+entries $M_{ij}, \ (i,j) \in \Omega$. Relying on the assumption that
+$M$ has low rank, we can pose this as a constrained rank-minimization
+problem
+\begin{equation*}
+\begin{aligned}
+  & \underset{X}{\text{minimize}} & & \mathrm{rank}(X) \\
+  & \text{subject to}             & & X_{ij} = M_{ij}, \ \ \forall (i, j)
+  \in \Omega. \\
+\end{aligned}
+\end{equation*}
+
+In this project, we explore several algorithms for matrix completion
+via rank-minimization and compare their performance on collaborative
+filtering baselines. We provide an implementation of the method
+described in ``A Singular Value Thresholding Algorithm for Matrix
+Completion'' \cite{cai2010singular} and reproduce their experiments.
+We also provide an implementation of a competing algorithm from
+``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix} and
+compare their effectiveness.
+
+
 \section{Different Algorithms}
 
-\subsection{Baseline Algorithm (Eigentaste)}
+\subsection{Eigentaste}
 
-\subsection{SMC}
-\input{smc}
+Eigentaste is a collaborative filtering algorithm which applies
+principal component analysis to the dense subset of user ratings, thus
+facilitating dimensionality reduction for offline clusters and rapid
+computation of recommendations. Mean rating of the jth item in the
+gauge set is given by
+\begin{equation*}
+\mu_{ij}=\frac{1}{n}{\sum_{i\epsilon U_{j}}}\widetilde{r}_{ij}\\
+\end{equation*}
+\begin{equation*}
+\sigma_j^2=\frac{1}{n-1}{\sum_{i\epsilon U_{j}}}({\widetilde{r}_{ij}-\mu_{j}})^{2}
+\end{equation*}
+
+In A, the normalized rating $r_{ij}$ is set to
+$({\widetilde{r}_{ij}-\mu_{j}})/\sigma _{j}$ . The global correlation
+matrix is given by
+\begin{equation*}
+C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
+\end{equation*}
+
+The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
+
+\textit{Recursive Rectangular Clustering: }
+
+\begin{enumerate}
+\item Find the minimal rectangular cell that encloses all the points
+  in the eigenplane.
+\item Bisect along x and y axis to form 4 rectangular sub-cells.
+\item Bisect the cells in step 2 with origin as a vertex to form
+  sub-cells at next hierarchial level.
+\end{enumerate}
+
+ \textit{Online Computation of Recommendations}
+
+\begin{enumerate}
+\item Collect ratings of all items in gauge set.
+\item Use PCA to project this vector to eigenplane.
+\item Find the representative cluster.
+\item Look up appropriate recommendations, present them to the new
+  user, and collect ratings.
+\end{enumerate}
+
+
+\subsection{Spectral Matrix Completion}
+%\input{smc}
 
 \subsection{Singular Value Thresholding}
 
 Singular Value Thresholding (SVT) \cite{cai2010singular} is an
-algorithm proposed for \emph{nuclear norm minimization} of a matrix
-$X$ from a few known entries $M_{ij}, (i,j) \in \Omega$. Formally, SVT
-addresses the optimization problem
-
+algorithm proposed for \emph{nuclear norm minimization} of a matrix.
+Formally, SVT addresses the optimization problem
 \begin{equation*}
 \begin{aligned}
   & \underset{X}{\text{minimize}} & & \|X\|_{*} \\
@@ -68,7 +143,6 @@ addresses the optimization problem
   \mathcal{P}_\Omega (M), \\
 \end{aligned}
 \end{equation*}
-
 where $\|\cdot\|_{*}$ is the \emph{nuclear norm}, or the sum of the
 singular values and $\mathcal{P}_\Omega (\cdot)$ makes zero all
 entries $(i, j) \notin \Omega$. This can be thought of as a convex
@@ -82,19 +156,16 @@ using a low-rank, low-singular value approximation to an auxiliary
 sparse matrix $Y$. $Y$ is then adjusted to ensure the resulting
 approximation in the subsequent step has matching entries
 $X_{ij} = M_{ij}$. Each iteration consists of the inductive steps
-
 \begin{equation*}
 \begin{cases}
 X^{k} = \mathrm{shrink}(Y^{k-1}, \tau) \\
 Y^{k} = Y^{k-1} + \delta_k \mathcal{P}_\Omega (M-X^{k}),              \\
 \end{cases}
 \end{equation*}
-
 where $\mathrm{shrink}(\cdot, \cdot)$ is the \emph{singular value
   shrinkage operator}. Given a singular value decomposition $X = U
 \Sigma V^T$, $\Sigma = \mathrm{diag}(\{\sigma_i\}_{1 \le i \le r})$, we
   can write this as
-
 \begin{equation*}
 \mathrm{shrink}(X, \tau) = U\Sigma_\tau V^T, \ \ \Sigma_\tau = \mathrm{diag}(\{(\sigma_i-\tau)_{+}\}).
 \end{equation*} 
@@ -117,16 +188,18 @@ throughout. We compute the decomposition of $Y^K$ in batches, which
 introduces a new batch size parameter $l$. Also important is the
 initialization of $Y^0$, for which the authors provide helpful
 strategies. Finally, we use the relative error
-
 $\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
-criterion; we terminate when this drops below a small $\epsilon$.
+criterion. We terminate when this drops below a small $\epsilon$.
 
 
 
 \section{Results and Discussion}
 \subsection{Synthetic Data}
 
-\input{svt_synth.tex}
+% I put this table in a separate file because it is auto-generated by
+% a script. I'll clean it up later once I finish running the
+% experiments - Jonathan
+\input{tables/svt_synth.tex}
 
 \subsection{Jester Dataset}
 

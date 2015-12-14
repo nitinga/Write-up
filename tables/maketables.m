@@ -1,4 +1,5 @@
-addpath latexTable % source: http://www.mathworks.com/matlabcentral/fileexchange/44274-latextable
+addpath latexTable
+% source: http://www.mathworks.com/matlabcentral/fileexchange/44274-latextable
 
 
 %% Table 1: performance of SVT on synthetic data
@@ -31,7 +32,7 @@ input.tableCaption = ...
      '$U$ and $V$ whose entries are i.i.d. gaussian.' ...
      'We choose $m$ random entries from $M = U V^T$ and measure ' ...
      'convergence rates of SVT. $m/d_r$ is the ratio of sampled ' ...
-     'entries $m$ and the "true dimensionality" $d_r = r(2n-r)$.'];
+     'entries $m$ and the ``true dimensionality'''' $d_r = r(2n-r)$.'];
 
 latex = latexTable(input);
 
