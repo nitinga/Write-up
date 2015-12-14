@@ -1,0 +1,16 @@
+In the present paper, the Spectral Matrix Completion (SMC) algorithm presented in Keshavan et al.~\cite{keshavan2010matrix} is implemented. Lets say, $M$ is the matrix whose entry $(i,j) \in [m] \times [n]$ corresponding to the rating user $i$ would assign to movie/joke $j$. $M^E$ is the $m \times n$ matrix that contains the revealed entries of $M$, and is filled with 0's in the other positions 
+\begin{equation}
+M = \left \{ \begin{array}{rcl}
+	M_{i,j} & \mbox{if  }  (i,j) \in E \\
+	 0 & \mbox{otherwise} 
+	\end{array} \right.
+\end{equation}
+
+As presented in~\cite{keshavan2010matrix}, the SMC algorithm has the following structure:
+\begin{enumerate}
+\item Trim the $M^E$, and let $\widetilde{M}^E$.
+\item Project $\widetilde{M}^E$ to $T_r(\widetilde{M}^E)$.
+\item Clean residual errors by minimizing the discrepancy F(X,Y).
+\end{enumerate}
+
+
