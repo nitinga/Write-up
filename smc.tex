@@ -1,6 +1,6 @@
 In the present paper, the Spectral Matrix Completion (SMC) algorithm presented in Keshavan et al.~\cite{keshavan2010matrix} is implemented. Lets say, $M$ is the matrix whose entry $(i,j) \in [m] \times [n]$ corresponding to the rating user $i$ would assign to movie/joke $j$. $M^E$ is the $m \times n$ matrix that contains the revealed entries of $M$, and is filled with 0's in the other positions 
 \begin{equation}
-M = \left \{ \begin{array}{rcl}
+M^E_{i,j} = \left \{ \begin{array}{rcl}
 	M_{i,j} & \mbox{if  }  (i,j) \in E \\
 	 0 & \mbox{otherwise} 
 	\end{array} \right.
@@ -13,4 +13,26 @@ As presented in~\cite{keshavan2010matrix}, the SMC algorithm has the following s
 \item Clean residual errors by minimizing the discrepancy F(X,Y).
 \end{enumerate}
 
+\subsubsection{Trimming}
+In the trimming step, zero all columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all rows with degree larger than $2|E|/m$, where $|E|$ is the number of non-zero entries in $M$. Trimming leads to 'throwing out information' which makes the underlying true-rank structure more apparent. This effect becomes even more important when the number
+of revealed entries per row/column follows a heavy tail distribution, as for real data.
 
+\subsubsection{Projection}
+In the projection step, compute the singular value decomposition (SVD) of $M^E$ (with $\sigma_1 \ge \sigma_2 \ge .....\ge 0$)
+\begin{equation}
+M^E = \sum\limits_{i=1}^{min(m,n)} \sigma_ix_iy_i^T
+\end{equation}
+and, then the matrix $T_r(M^E)$ is $(mn/|E|)\sum\limits_{i=1}^r \sigma_ix_iy_i^T$, obtained by setting to 0 all but the $r$ largest singular values. Note that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the orthogonal projection of $M^E$ onto the set of rank-r matrices. 
+
+\subsubsection{Cleaning}
+This is the step where all the magic happens in SMC algorithm. Given $X \in R^{m\times r}$, $Y \in R^{n\times r}$ with $X^TX = m1$ and $Y^TY = n1$, 
+\begin{equation}
+F(X,Y) = \min_{S \in R^{r \times r}} F(X,Y,S)
+\end{equation}
+\begin{equation}
+F(X,Y,S) = \frac{1}{2} \sum\limits_{(i,j) \in E} (M_{ij} - (XSY^T)_{ij})^2
+\end{equation}
+The cleaning step consists in writing $T_r(\widetilde{M}^E) = X_0S_0Y_0^T$ and minimizing $F(X, Y)$ locally with initial
+condition $X = X_0$, $Y = Y_0$. Note that $F(X, Y)$ is easy to evaluate since it is defined by minimizing the quadratic function
+$S \mapsto F(X, Y, S)$ over the low-dimensional matrix $S$. Further it depends on $X$ and $Y$ only through
+their column spaces. In geometric terms, $F$ is a function defined over the cartesian product of two Grassmann manifolds. Optimization over Grassmann manifolds is a well understood topic~\cite{edelman1998geometry} and efficient algorithms (in particular Newton and conjugate gradient) can be applied. In the present algorithm, gradient descent with line search is used to minimize $F(X, Y)$.
