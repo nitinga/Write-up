@@ -13,18 +13,18 @@ As presented in~\cite{keshavan2010matrix}, the SMC algorithm has the following s
 \item Clean residual errors by minimizing the discrepancy F(X,Y).
 \end{enumerate}
 
-\subsection{Trimming}
+\subsubsection{Trimming}
 In the trimming step, zero all columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all rows with degree larger than $2|E|/m$, where $|E|$ is the number of non-zero entries in $M$. Trimming leads to 'throwing out information' which makes the underlying true-rank structure more apparent. This effect becomes even more important when the number
 of revealed entries per row/column follows a heavy tail distribution, as for real data.
 
-\subsection{Projection}
+\subsubsection{Projection}
 In the projection step, compute the singular value decomposition (SVD) of $M^E$ (with $\sigma_1 \ge \sigma_2 \ge .....\ge 0$)
 \begin{equation}
 M^E = \sum\limits_{i=1}^{min(m,n)} \sigma_ix_iy_i^T
 \end{equation}
 and, then the matrix $T_r(M^E)$ is $(mn/|E|)\sum\limits_{i=1}^r \sigma_ix_iy_i^T$, obtained by setting to 0 all but the $r$ largest singular values. Note that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the orthogonal projection of $M^E$ onto the set of rank-r matrices. 
 
-\subsection{Cleaning}
+\subsubsection{Cleaning}
 This is the step where all the magic happens in SMC algorithm. Given $X \in R^{m\times r}$, $Y \in R^{n\times r}$ with $X^TX = m1$ and $Y^TY = n1$, 
 \begin{equation}
 F(X,Y) = \min_{S \in R^{r \times r}} F(X,Y,S)
