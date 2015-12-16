@@ -11,7 +11,7 @@
 
 \author{
 Sriram Ganesan\thanks{ The names are printed in alphabetical order by last name.} \\
-\texttt{---} \\
+\texttt{sriramg@umich.edu} \\
 \And
 Nitin Garg \\
 \texttt{gargn@umich.edu} \\
@@ -46,6 +46,12 @@ Jonathan Stroud \\
 \end{abstract}
 
 \section{Introduction}
+
+Recovering a low rank matrix from a given subset of its entries is a well known problem in collaborative filtering \cite{r25} , dimensionality reduction\cite{r20, r28} and multi-class learning \cite{r2, r22}, finding the lowest rank matrix satisfying equality constraints is NP-hard. The complexity class of decision problems that are intrinsically harder than those that can be solved by a nondeterministic Turing machine in polynomial time. Examples of NP-hard problems include the Hamiltonian cycle and traveling salesman problems. All known algorithms which can compute lowest rank solution for all instances require time atleast exponential in the dimensions of the matrix in both theory and practice.
+
+Candes and Recht showed that most low rank matrices could be recovered from most sufficiently large sets of entries by computing the matrix of minimum nuclear norm that agreed with the provided entries\cite{r4} and the known set of entries could comprise a vanishing fraction of the entire matrix. The nuclear norm is equal to the sum of the singular values of a matrix and is the best convex lower bound of the rank function on the set of matrices whose singular values are all bounded by 1. The intuition behind this measure is that whereas the rank function counts the number of nonvanishing singular values, the nuclear norm sums their amplitude, much like how the `1 norm is a useful substitute for counting the number of nonzeros in a vector. Moreover, the nuclear norm can be minimized subject to equality constraints via semidefinite programming.
+
+Nuclear norm minimization had long been observed to produce very low-rank solutions in practice (see, for example \cite{r11, r12, r26}), but only very recently was there any theoretical basis for when it produced the minimum rank solution. The first paper to provide such foundations was \cite{r24}, where Recht, Fazel, and Parrilo developed probabilistic techniques to study average case behavior and showed that the nuclear norm heuristic could solve most instances of the rank minimization problem assuming the number of linear constraints was sufficiently large. The results in \cite{r24} inspired a groundswell of interest in theoretical guarantees for rank minimization, and these results lay the foundation for \cite{r4}. Candes and Recht’s bounds were subsequently improved by Candes and Tao \cite{r7} and Keshavan, Montanari, and Oh \cite{r18} to show that one could, in special cases, reconstruct a low-rank matrix by observing a set of entries of size at most a polylogarithmic factor larger than the intrinsic dimension of the variety of rank r matrices.
 
 \emph{Collaborative Filtering} is the process of learning patterns by
 aggregating information over multiple sources of data, typically
@@ -210,41 +216,41 @@ neighbor has the largest weight.
 \section{Experimental Results}
 \subsection{Synthetic Data}
 The performance of the SVT and SMC algorithms were compared on synthetically generated matrices of varying ranks, sizes and sparsity. Specifically, low rank square matrices of sizes 1000 and 5000 with ranks of 5, 10 and 20, and sparsity levels of 30\%, 50\% and 70\% were used. As a baseline to SVT and SMC, a column mean matrix completion method was implemented. This method predicts the average column value for all missing entries. 
-In the following figures we see mean absolute error and run time averaged over the categories of size, rank and sparsity. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all experiments were run on CAEN lab computers (8GB memory with one core i7 processors).
+In the Tables~\ref{MAE},~\ref{Time} the mean absolute error and the run time averaged over the categories of size, rank and sparsity can be noted. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all simulations were run at University of Michigan's CAEN lab computers (8GB memory with one core i7 processors). The last columns in the Tables~\ref{MAE},~\ref{Time} contains the averaged mean absolute error and the run time for the different ranks and sparsity of the synthetically generated matrices of size 1000 and 5000.
 
 \begin{table} [ht!]
 \centering
  \caption{Mean Absolute Error}
- \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+ \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
   \hline \hline
-  & & \text{Size} & &\text{Rank}  & &  &\text{Sparsity}&\\
-\text{Algorithm} & 1000 & 5000 & 5 & 10 & 20 & 30\% & 50\% & 70\% \\
+   & &\text{Rank}  & &  &\text{Sparsity}&& \text{Size} & \text{(Average)} \\
+\text{Algorithm} & 5 & 10 & 20 & 30\% & 50\% & 70\% & 1000 & 5000 \\
 \hline
-\text{Mean} & 9.43 & 10.26 & 5.65 & 9.90 & 13.98 & 9.10 & 10.21 & 10.21 \\
-\text{SVT} & 1.37 & 7.6E-04 & 2.05 & 7.2E-04 & 1.4E-03 & 2.05 & 8.4E-04 & 9.6E-04\\
-\text{SMC} & 1.4E-04 & 3.7E-07 & 2.1E-04 & 4.3E-07 & 4.5E-07 & 2.1E-04 & 4.2E-07 & 3.8E-07\\
+\text{Mean}  & 5.65 & 9.90 & 13.98 & 9.10 & 10.21 & 10.21 & 9.43 & 10.26\\
+\text{SVT}  & 2.05 & 7.2E-04 & 1.4E-03 & 2.05 & 8.4E-04 & 9.6E-04 & 1.37 & 7.6E-04\\
+\text{SMC} & 2.1E-04 & 4.3E-07 & 4.5E-07 & 2.1E-04 & 4.2E-07 & 3.8E-07  & 1.4E-04 & 3.7E-07\\
  \hline \hline
-\label{modAl}
+\label{MAE}
  \end{tabular}
 \end{table}
 
 \begin{table} [ht!]
 \centering
  \caption{Run Time (in seconds)}
- \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+ \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
   \hline \hline
- & & \text{Size} & &\text{Rank}  & &  &\text{Sparsity}&\\
-\text{Algorithm} & 1000 & 5000 & 5 & 10 & 20 & 30\% & 50\% & 70\% \\
+  & &\text{Rank}  & &  &\text{Sparsity}&&\text{Size} & \text{(Average)} \\
+\text{Algorithm}& 5 & 10 & 20 & 30\% & 50\% & 70\%  & 1000 & 5000 \\
 \hline
-\text{Mean} & 0.01 & 0.22 & 0.12 & 0.12 & 0.10 & 0.11 & 0.11 & 0.12 \\
-\text{SVT} & 6 & 98 & 26 & 39 & 92 & 42 & 54 & 60\\
-\text{SMC} & 86 & 1433 & 252 & 405 & 1623 & 1021 & 510 & 748\\
+\text{Mean}  & 0.12 & 0.12 & 0.10 & 0.11 & 0.11 & 0.12 & 0.01 & 0.22\\
+\text{SVT} & 26 & 39 & 92 & 42 & 54 & 60& 6 & 98 \\
+\text{SMC}& 252 & 405 & 1623 & 1021 & 510 & 748 & 86 & 1433 \\
 \hline \hline
-\label{modAl}
+\label{Time}
  \end{tabular}
 \end{table}
 
-Both SVT and SMC outperform the mean method. In addition, SMC consistently outperforms SVT in orders of magnitude of three.  While SMC significantly outperforms SVT in terms of accuracy, SVT significantly outperforms SMC in terms of time.  It appears that the time cost of SMC grows exponentially with rank size. Even at rank five, the smallest tested rank value, SMC runs 9.6 times slower than SVT. 
+Both SVT and SMC outperform the baseline column-mean method. In addition, SMC consistently outperforms SVT in terms of mean absolute error, by order of three. While SMC significantly outperforms SVT in terms of accuracy, SVT significantly outperforms SMC in terms of time.  It appears that the computational cost of SMC grows exponentially with rank size. Even at rank five, the smallest tested rank value, SMC runs 9.6 times slower than SVT. 
 
 % I put this table in a separate file because it is auto-generated by
 % a script. I'll clean it up later once I finish running the
@@ -252,6 +258,7 @@ Both SVT and SMC outperform the mean method. In addition, SMC consistently outpe
 \input{tables/svt_synth.tex}
 
 \subsection{Jester Dataset}
+The Jester Dataset~\cite{Goldberg2012} is used to evaluate our implementation of various algorithms. This dataset is wellknown and has several variants with different levels of difficulty. In the present paper, Jester dataset 1 is being used, which contains anonymous rating data from 73,421 users. The ratings are real values ranging from -10.00 to +10.00 and the unrated values are marked as "NaN". There is one row per user and 100 columns for 100 jokes. There are also 10 columns/Jokes which are dense, i.e. almost all users have rated those jokes. These 10 dense columns becomes very critical for some algorithms, such as Eigentaste.
 
 \section{Conclusions}
 
