@@ -82,9 +82,6 @@ We also provide an implementation of a competing algorithm from
 compare their effectiveness.
 
 
-\section{Spectral Matrix Completion}
-
-\input{smc}
 
 \section{Singular Value Thresholding}
 
@@ -146,6 +143,11 @@ strategies. Finally, we use the relative error
 $\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
 criterion. We terminate when this drops below a small $\epsilon$.
 
+\section{Spectral Matrix Completion}
+
+\input{smc}
+
+
 \section{Baseline Algorithms}
 
 \subsection{Eigentaste}
@@ -204,13 +206,11 @@ user i to user p as the weight w(i, p), and $\kappa$ = $\sum_{k=1}^n w(i,p)$.
 Specifically, if we are interested in q nearest neighbors,
 w(i; p) = d(i, q +1)- d(i, p). This ensures that i’s closest
 neighbor has the largest weight.
-\subsection{Spectral Matrix Completion}
-\input{smc}
 
 \section{Experimental Results}
 \subsection{Synthetic Data}
 The performance of the SVT and SMC algorithms were compared on synthetically generated matrices of varying ranks, sizes and sparsity. Specifically, low rank square matrices of sizes 1000 and 5000 with ranks of 5, 10 and 20, and sparsity levels of 30\%, 50\% and 70\% were used. As a baseline to SVT and SMC, a column mean matrix completion method was implemented. This method predicts the average column value for all missing entries. 
-In the following figures we see mean absolute error and run time averaged over the categories of size, rank and sparsity. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all experiments were run on CAEN lab computers (8GB memory with four core i7 processors).
+In the following figures we see mean absolute error and run time averaged over the categories of size, rank and sparsity. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all experiments were run on CAEN lab computers (8GB memory with one core i7 processors).
 
 \begin{table} [ht!]
 \centering
@@ -230,7 +230,7 @@ In the following figures we see mean absolute error and run time averaged over t
 
 \begin{table} [ht!]
 \centering
- \caption{Run Tine (in seconds)}
+ \caption{Run Time (in seconds)}
  \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
   \hline \hline
  & & \text{Size} & &\text{Rank}  & &  &\text{Sparsity}&\\
