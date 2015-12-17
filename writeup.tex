@@ -66,7 +66,7 @@ reduction~\cite{r20, r28} and multi-task learning~\cite{r2, r22}. This
 problem turns out to be computationally hard. In fact, rank
 minimization is NP-hard, meaning that is at least as hard as all those
 that can be solved by a nondeterministic Turing machine in polynomial
-time, like the Hamiltonian Cycle and Traveling Salesman problems. In
+time, like the Hamiltonian Cycle~\cite{plesn} and Traveling Salesman problems~\cite{lawler1985}. In
 both theory and practice, all algorithms that perform this task have
 time complexity exponential in the size of the matrix.
 
@@ -103,7 +103,7 @@ Singular Value Thresholding Algorithm for Matrix Completion''
 \cite{cai2010singular}. Spectral Matrix Completion (SMC) was introduced
 in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}. 
 
-In Section 2, we explain the methodology and parameters used for the SVT algorithm. Section 3 explains the SMC algorithm with detailed description of the steps involved. Section 4 explains the baseline algorithms used in the present paper, namely, Eigentaste, and K-nearest neighbor. In Section 5.1 and Section 5.2, we present a detailed comparison of the results for synthetic data and real-world data (Jester joke dataset) respectively. Section 5.3 contains the two-dimensional visualization of the Jester joke dataset. Section 6 presents the conclusions, with Section 7 giving a brief overview of the team memeber's efforts.  
+In Section 2, we explain the methodology and parameters used for the SVT algorithm. Section 3 explains the SMC algorithm with detailed description of the steps involved. Section 4 explains the baseline algorithms used in the present paper, namely, Eigentaste, and K-nearest neighbor. In Section 5.1 and Section 5.2, we present a detailed comparison of the results for synthetic data and real-world data (Jester joke dataset) respectively. Section 5.3 contains the two-dimensional visualization of the Jester joke dataset. Section 6 presents the conclusions, with Section 7 giving a brief overview of the team member's efforts.  
 
 
 \section{Singular Value Thresholding}
@@ -155,9 +155,9 @@ discussion.
 SVT has hyperparameters that must be carefully tuned to guarantee
 convergence. The shrinkage value $\tau$ must be set high in order for
 the algorithm to converge, but not too high that it exceeds the true
-singular values. The stepsize $\delta_k$ are similarly sensitive. The
-stepsize can be set dynamically as well, though we choose to maintain
-a fixed stepsize throughout. Furthermore, we compute the decomposition
+singular values. The step size $\delta_k$ are similarly sensitive. The
+step size can be set dynamically as well, though we choose to maintain
+a fixed step size throughout. Furthermore, we compute the decomposition
 of $Y^K$ in batches, which introduces a new batch size parameter $l$
 that effects the speed of convergence. Also important is the
 initialization of $Y$, for which the authors provide helpful
@@ -266,15 +266,14 @@ Mean rating of the jth item in the gauge set is given by
 \begin{equation*}
 \sigma_j^2=\frac{1}{n-1}{\sum_{i\epsilon U_{j}}}({\widetilde{r}_{ij}-\mu_{j}})^{2}
 \end{equation*}
-
-In A, the normalized rating $r_{ij}$ is set to
+where $\widetilde{r}_{ij}$ is the user rating of item $j$ by user $i$, $\mu_{j}$ and $\sigma_j$ is the mean and variance of the item $j$, respectively. In A, the normalized rating $r_{ij}$ is set to
 $({\widetilde{r}_{ij}-\mu_{j}})/\sigma _{j}$ . The global correlation
 matrix is given by
 \begin{equation*}
 C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
 \end{equation*}
 
-The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
+The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$, where $R$ is the normalized user rating matrix.
 
 \textit{Recursive Rectangular Clustering: }
 
@@ -423,7 +422,7 @@ tested rank value, SMC runs 9.6 times slower than SVT.
  \label{Time}
 \end{table}
 
-Since the baseline algorithms (Eigentaste) needs at least few fully filled columns, we did not use baseline algorithms to compare the synthetic data. However, we use the baseline algorithms to compare in the next section with Jester joke datatset. 
+Since the baseline algorithms (Eigentaste) needs at least few fully filled columns, we did not use baseline algorithms to compare the synthetic data. However, we use the baseline algorithms to compare in the next section with Jester joke dataset. 
 
 \subsection{Jester Dataset}
 
@@ -547,12 +546,12 @@ the dyslexic devil worshiper? \\
      & the wall builder? No! \\
      & He Takes a few sips of his beer then says, "Aye, and look out
        on that lake and \\
-     & eye that beautiful pier. I built it meself, laid every board
+     & eye that beautiful pier. I built it myself, laid every board
        and hammered each nail \\
      & but do they call me MacGregor the pier builder? No! \\
      & He continues..."And lad, you see that road? That too I build with me
        own bare hands. \\
-     & Laid every inch of pavement meself, but do they
+     & Laid every inch of pavement myself, but do they
        call MacGregor the road builder? No!" \\
      & Again he returns to his beer for a few sips, then says,
        "Agh, but you screw  one sheep..." \\ \hline
@@ -587,7 +586,7 @@ inspection these observations seem to hold true in general.
 In the present paper, we explained various algorithms to solve matrix completion problem. In particular, we focused on Spectral Matrix Completion (SMC) algorithm and Spectral Value Thresholding (SVT) algorithm. We compared these sophisticated algorithm with various baseline algorithms, namely, column mean, eigentaste, and K-nearest neighbor algorithm. 
 We checked the performance of the algorithms with synthetic data, with varying size, rank, and sparsity of the input matrix. We concluded that both SMC and SVT performs better than the baseline column-mean algorithm. Between SMC and SVT, while the SMC attains better accuracy than SVT, SMC takes longer time to converge than SVT. 
 For the Jester joke dataset, we compared NMAE (Normalized Mean Absolute Error) for different users ({100, 200, 1000}) on SMC, SVT, Eigentaste, and K-nearest neighbor (with $K=50$). We concluded that the SMC performs the best (in terms for NMAE) for all the user sets selected in this paper. In terms of NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest neighbor. This trend follows the intuition as well.
-Lastly, we present a two dimensional representation of the entire 100 jokes in the Jester joke datatset. We went through the jokes individually, and tried to guess the axes to the best of our abilities. It seems it follows the general trend, as explained in the paper.
+Lastly, we present a two dimensional representation of the entire 100 jokes in the Jester joke dataset. We went through the jokes individually, and tried to guess the axes to the best of our abilities. It seems it follows the general trend, as explained in the paper.
 
 
 
@@ -607,7 +606,11 @@ responsible for taking the lead on specific tasks. All team members contributed 
 \\
 \\
 \\
-
+\\
+\\
+\\
+\\
+\\
 
 \bibliographystyle{plain}
 \bibliography{writeup}
