@@ -10,7 +10,7 @@
 
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
-\title{Singular Value Thresholding for Matrix Completion}
+\title{A Comparative Study of Matrix Completion Methods}
 
 \author{
 Sriram Ganesan\thanks{ The names are printed in alphabetical order by last name.} \\
@@ -36,12 +36,12 @@ Jonathan Stroud \\
 \maketitle
 
 \begin{abstract}
-\input{abstract}
+Matrix completion, is the task of filling in the unknown entries of a sparse matrix. In the present paper, the baseline algorithms for matrix completion, such as eigentaste, nearest K-neighbor, and column mean are compared against the more sophisticated matrix completion algorithms, such as Spectral Matrix Completion (SMC) and Singular Value Thresholding (SVT). The comparison metric used in the present paper includes accuracy, convergence time, and the nature of the input matrix. All of the presented methods have their advantages and disadvantages based on the problem. In the present paper, the Normalized Mean Absolute Error (NMAE) are presented for synthetic data and the real-world data (Jester jokes dataset). While Eigentaste needs at least few fully filled columns to complete the sparse matrix, SMC and SVT does not have that limitation. Between SMC and SVT, SMC provides better accuracy but is much slower than the SVT. 
 \end{abstract}
 
 \section{Introduction}
 
-How can we predict what movies a person will enjoy? On what webpages
+How can we predict what movies a person will enjoy? On what web-pages
 will they click? Which emails will they read? \emph{Collaborative
   Filtering} problems like these are tricky. Consider predicting a
 person's movie preferences using Netflix's database. We can predict
@@ -51,7 +51,7 @@ regression model trained on the ratings of users that have rated
 that most users have not rated \textit{Rambo}, and most users who
 have, have not rated the same ones as the user for whom we are making
 the prediction. This means that our model would have to ignore a
-majority of the data avaialable, limiting performance. Furthermore a
+majority of the data available, limiting performance. Furthermore a
 separate model would need to be trained for each movie in the system,
 leading to computational difficulties.
 
@@ -61,18 +61,17 @@ that has only a few entries filled in. Our task is then to complete
 the matrix, assuming that it has some simple underlying structure. Low
 rank is a common structural assumption. Recovering a low rank matrix
 from a few entries is a problem with applications not only in
-collaborative filtering \cite{r25}, but also in dimensionality
-reduction \cite{r20, r28} and multi-task learning \cite{r2, r22}. This
+collaborative filtering~\cite{r25}, but also in dimensionality
+reduction~\cite{r20, r28} and multi-task learning~\cite{r2, r22}. This
 problem turns out to be computationally hard. In fact, rank
 minimization is NP-hard, meaning that is at least as hard as all those
 that can be solved by a nondeterministic Turing machine in polynomial
 time, like the Hamiltonian Cycle and Traveling Salesman problems. In
 both theory and practice, all algorithms that perform this task have
-time complexity exponential in the size of the matrix. \color{red} We must settle
-for an approximation.\color{black}
+time complexity exponential in the size of the matrix.
 
 Candes and Recht showed that most low-rank matrices could be recovered instead by minimizing the nuclear norm, defined as the sum of the
-singular values \cite{r4}. Theoretically, the nuclear
+singular values~\cite{r4}. Theoretically, the nuclear
 norm is the tightest convex lower bound on the rank function for
 singular values no greater than 1. Intuitively, while the rank
 function counts the number of nonzero singular values, the nuclear
@@ -81,18 +80,16 @@ substitute for counting the number of nonzero entries in a vector.
 Conveniently, the nuclear norm can be minimized efficiently subject to
 equality constraints via semidefinite programming.
 
-\color{red}Nuclear norm minimization has long been observed to produce fairly
-low-rank solutions \cite{r11, r12, r26}, but only recently was there
-any theoretical basis for when it produced the true minimum rank
-solution. \color{black}The first paper to provide such foundations was \cite{r24},
+Nuclear norm minimization has long been observed to produce fairly
+low-rank solutions~\cite{r11, r12, r26}, but only recently there was
+any theoretical basis for the instances where it produced the true minimum rank
+solution. One of the first papers to provide such foundation was~\cite{r24},
 where Recht, Fazel, and Parrilo developed probabilistic techniques to
-study average case behavior and showed that the nuclear norm heuristic
+study average case behavior. They showed that the nuclear norm heuristic
 could solve most instances of the rank minimization problem when the
-number of linear constraints were sufficiently large. This inspired a
-groundswell of interest in theoretical guarantees for rank
-minimization, and these results lay the foundation for \cite{r4}.
-Candes and Recht’s bounds were subsequently improved by Candes and Tao
-\cite{r7} and Keshavan, Montanari, and Oh \cite{keshavan2010matrix} to
+number of linear constraints were sufficiently large. This inspired interest in theoretical guarantees for rank
+minimization, and these results lay the foundation for~\cite{r4}.
+Candes and Recht’s bounds were subsequently improved by Candes and Tao~\cite{r7} and Keshavan, Montanari, and Oh~\cite{keshavan2010matrix} to
 show that one could, in special cases, reconstruct a low-rank matrix
 by observing a set of entries of size at most a polylogarithmic factor
 larger than the intrinsic dimension of matrix.
@@ -103,9 +100,10 @@ norm-minimization and compare their performance on collaborative
 filtering baselines, using both synthetic and real-world data. The
 Singular Value Thresholding (SVT) algorithm was introduced in ``A
 Singular Value Thresholding Algorithm for Matrix Completion''
-\cite{cai2010singular}. Spectral Matrix Comletion (SMC) was introduced
-in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}. \color{red}
-and compare their effectiveness.\color{black}
+\cite{cai2010singular}. Spectral Matrix Completion (SMC) was introduced
+in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}. 
+
+In Section 2, we explain the methodology and parameters used for the SVT algorithm. Section 3 explains the SMC algorithm with detailed description of the steps involved. Section 4 explains the baseline algorithms used in the present paper, namely, Eigentaste, and K-nearest neighbor. In Section 5.1 and Section 5.2, we present a detailed comparison of the results for synthetic data and real-world data (Jester joke dataset) respectively. Section 5.3 contains the two-dimensional visualization of the Jester joke dataset. Section 6 presents the conclusions, with Section 7 giving a brief overview of the team memeber's efforts.  
 
 
 \section{Singular Value Thresholding}
@@ -125,7 +123,7 @@ operator, which makes zero all entries $(i, j) \notin \Omega$.
 
 Singular Value Thresholding works in an iterative, alternating fashion
 reminiscent of the Alternating Direction Method of Multipliers (ADMM).
-The complete matrix $X$ is contructed iteratively using a low-rank,
+The complete matrix $X$ is constructed iteratively using a low-rank,
 low-singular value approximation to an auxiliary sparse matrix $Y$.
 $Y$ is then adjusted to ensure the resulting approximation in the
 subsequent step has matching entries $X_{ij} = M_{ij}$. Each iteration
@@ -157,7 +155,7 @@ discussion.
 SVT has hyperparameters that must be carefully tuned to guarantee
 convergence. The shrinkage value $\tau$ must be set high in order for
 the algorithm to converge, but not too high that it exceeds the true
-singular values. The stepsizes $\delta_k$ are similarly sensitive. The
+singular values. The stepsize $\delta_k$ are similarly sensitive. The
 stepsize can be set dynamically as well, though we choose to maintain
 a fixed stepsize throughout. Furthermore, we compute the decomposition
 of $Y^K$ in batches, which introduces a new batch size parameter $l$
@@ -253,7 +251,7 @@ completion.
 
 \subsection{Eigentaste}
 
-Eigentaste is an another collaborative filtering algorithm specifically
+Eigentaste~\cite{r31} is an another collaborative filtering algorithm specifically
 designed for the Jester Dataset. It relies on the assumption that a
 subset of the columns will be dense, corresponding to a few ``seed''
 items which every user is required to review. Eigentaste applies
@@ -278,8 +276,6 @@ C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
 
 The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
 
-\color{red}TODO: make this next part more concise\color{black}
-
 \textit{Recursive Rectangular Clustering: }
 
 \begin{enumerate}
@@ -287,7 +283,7 @@ The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
   in the eigenplane.
 \item Bisect along x and y axis to form 4 rectangular sub-cells.
 \item Bisect the cells in step 2 with origin as a vertex to form
-  sub-cells at next hierarchial level.
+  sub-cells at next hierarchical level.
 \end{enumerate}
 
  \textit{Online Computation of Recommendations}
@@ -308,12 +304,11 @@ mean ratings of each person's nearest neighbors.
 \end{equation*}
 where $\overline{r_{i}}$ is the average joke rating for user i, and
 $\kappa$ is a normalizing factor ensuring that the absolute value of
-the weights sum to 1. We implemented the weighted nearest neighbor
-algorithm. We used a function of Euclidean distance from user i to
+the weights sum to 1. We used a function of Euclidean distance from user i to
 user p as the weight w(i, p), and $\kappa$ = $\sum_{k=1}^n w(i,p)$.
 Specifically, if we are interested in q nearest neighbors, $w(i; p) =
 d(i, q +1)- d(i, p)$. This ensures that i’s closest neighbor has the
-largest weight. In the present paper, we are using $K=50$ as the basline algorithm to compare against more sophisticated algorithms.
+largest weight. In the present paper, we are using $K=50$ as the baseline algorithm to compare against more sophisticated algorithms.
 
 \section{Experimental Results}
 
@@ -325,7 +320,7 @@ Specifically, the algorithms were tested on all combinations of matrix
 size (1000, 5000), rank (5, 10 and 20), and sparsity (30\%, 50\% and
 70\%). As a baseline to SVT and SMC, a column mean matrix completion
 method was implemented. This method predicts the average column value
-for all missing entries. In the Tables~\ref{MAE},~\ref{Time} the mean
+for all missing entries. In the Tables 1,~\ref{Time} the mean
 absolute error and the run time is averaged over the categories of
 size, rank, and sparsity. For example, out of the eighteen tests that
 were run, nine tests include the matrix of size 1000 $\times$ 1000. Therefore
@@ -335,7 +330,7 @@ Mean absolute error is the absolute value of the average error on the
 unknown entries. Run time is measured in seconds and all simulations
 were run at University of Michigan's CAEN lab computers (8GB memory
 with one core i7 processors). The columns in
-Tables~\ref{MAE},~\ref{Time} contain the averaged mean absolute error
+Tables 1,~\ref{Time} contain the averaged mean absolute error
 and the run time for all experiments.
 
 
@@ -386,7 +381,6 @@ unknown entries in a matrix.
 \begin{table} [ht!]
 \begin{center}
 \caption{Mean Absolute Error of predictions of unknown entries. The tolerance in SMC and SVT algorithms were set to $10^{-6}$ as the stopping criterion.}
-
  \begin{tabular}{l | l l l | l l l |l l}% p{2cm}}
   \hline \hline
                & \mc{3}{c}{Rank}             & \mc{3}{c}{Sparsity}         & \mc{2}{c}{Size ($n \times n$)} \\
@@ -400,7 +394,7 @@ unknown entries in a matrix.
 \label{MAE}
 \end{table}
 
-Table \ref{MAE} shows that both SVT and SMC outperform the baseline
+Table 1 shows that both SVT and SMC outperform the baseline
 column-mean method, which simply fills in all unknown entries in a
 column with the mean of its known entries. In addition, SMC
 consistently outperforms SVT in terms of mean absolute error, often by
@@ -426,11 +420,10 @@ tested rank value, SMC runs 9.6 times slower than SVT.
   SMC        & 252 & 405 & 1623   & 1021 & 510 & 748    & 86 & 1433 \\
   \hline \hline
  \end{tabular}
-
  \label{Time}
 \end{table}
 
-
+Since the baseline algorithms (Eigentaste) needs at least few fully filled columns, we did not use baseline algorithms to compare the synthetic data. However, we use the baseline algorithms to compare in the next section with Jester joke datatset. 
 
 \subsection{Jester Dataset}
 
@@ -439,7 +432,7 @@ from 73,421 users \cite{r30}. A set of 10 ``seed'' jokes were chosen
 to be presented to users before any others, and users that did not
 rate all of the seed jokes were discarded. This leaves us with 10
 completely dense columns, allowing us to apply both supervised
-learning algorithms (Eigentaste) and matrix completion algorithms
+learning algorithms (Eigentaste, K-nearest neighbor) and matrix completion algorithms
 (SVT, SMC). We hypothesize that the matrix completion algorithms will
 outperform those that only take advantage of the dense columns because
 matrix completion algorithms are capable of utilizing all data during training.
@@ -480,7 +473,7 @@ $[-10,10]$.
 %\label{Geo}
 %\end{figure}
 
-Table~\ref{Compare} comapres the NMAE for different number of users with all the four algorithms, namely, SMC, SVT, Eigentaste, and K-nearest neighbor. As noted from table~\ref{Compare}, SMC performs the best for all the different size of users. Thus, in Table~\ref{SMC}, we present detailed numerical results on the Jester joke dataset with the SMC algorithm.
+Table~\ref{Compare} compares the NMAE for different number of users with all the four algorithms, namely, SMC, SVT, Eigentaste, and K-nearest neighbor. As noted from table~\ref{Compare}, SMC performs the best for all the different size of users. Another point to note that, generally, NMAE keeps increasing with the matrix size. Thus, in Table~\ref{SMC}, we present detailed numerical results on the Jester joke dataset with the SMC algorithm.
 
 \begin{table} [h]
 \centering
@@ -591,9 +584,9 @@ inspection these observations seem to hold true in general.
 
 \section{Conclusions}
 
-In the present paper, we explained various algorithms to solve matrix completion problem. In particular, we focused on Spectral Matrix Completion (SMC) algorithm and Spectral Value Thresholding (SVT) algorithm. We compared these sophisticated algorithm with various baseline algorithms, namely, column mean and K-nearest algorithm. 
-We checked the perfomance of the algorithms with synthetic data, with varying size, rank, and sparsity of the input matrix. We concluded that both SMC and SVT performs better than the baseline column-mean algorithm. Between SMC and SVT, while the SMC attains better accuracy than SVT, SMC takes longer time to converge than SVT. 
-For the Jester joke datatset, we compared NMAE (Normalized Mean Absolute Error) for different users ({100, 200, 1000}) on SMC, SVT, Eigentaste, and K-nearest neighbor (with $K=50$). We concluded that the SMC performs the best (in terms for NMAE) for all the user sets selected in this paper. In terms of NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest neighbor. This trent follows the intuition as well.
+In the present paper, we explained various algorithms to solve matrix completion problem. In particular, we focused on Spectral Matrix Completion (SMC) algorithm and Spectral Value Thresholding (SVT) algorithm. We compared these sophisticated algorithm with various baseline algorithms, namely, column mean, eigentaste, and K-nearest neighbor algorithm. 
+We checked the performance of the algorithms with synthetic data, with varying size, rank, and sparsity of the input matrix. We concluded that both SMC and SVT performs better than the baseline column-mean algorithm. Between SMC and SVT, while the SMC attains better accuracy than SVT, SMC takes longer time to converge than SVT. 
+For the Jester joke dataset, we compared NMAE (Normalized Mean Absolute Error) for different users ({100, 200, 1000}) on SMC, SVT, Eigentaste, and K-nearest neighbor (with $K=50$). We concluded that the SMC performs the best (in terms for NMAE) for all the user sets selected in this paper. In terms of NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest neighbor. This trend follows the intuition as well.
 Lastly, we present a two dimensional representation of the entire 100 jokes in the Jester joke datatset. We went through the jokes individually, and tried to guess the axes to the best of our abilities. It seems it follows the general trend, as explained in the paper.
 
 
@@ -601,7 +594,19 @@ Lastly, we present a two dimensional representation of the entire 100 jokes in t
 \section{Group Member's Accomplishments}
 
 All team members participated in all aspects of the project as well as the final report. However, each member was
-responsible for taking the lead on specific tasks. All team members contributed towards the literature review as well. Sriram was in charge of implementing Eigentaste. He also had a leading role in the comparison of the methods on the Jester dataset. Nitin and Jeeheh lead the implementation of the SMC algorithm. Jeeheh took charge of the performance comparison on synthetic data. Nitin got the performance metric for different algorithms and  also carried out integration of the final report. Jonathan was in command of implementing the SVT algorithm and the two dimensional visualizations of the Jester dataset.
+responsible for taking the lead on specific tasks. All team members contributed towards the literature review as well. Sriram implemented Eigentaste and K-nearest neighbor. He also had a leading role in the comparison of the methods on the Jester dataset. Nitin and Jeeheh lead the implementation of the SMC algorithm. Jeeheh took charge of the performance comparison on synthetic data. Nitin got the performance metric for different algorithms and  also carried out integration of the final report. Jonathan was in command of implementing the SVT algorithm and the two dimensional visualizations of the Jester dataset. He also contributed in comparing various algorithms for the synthetic dataset.
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
+\\
 
 
 \bibliographystyle{plain}
