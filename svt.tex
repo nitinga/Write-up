@@ -1,0 +1,62 @@
+Formally, Singular Value Thresholding (SVT) addresses the optimization
+problem
+\begin{equation*}
+\begin{aligned}
+  & \underset{X}{\text{minimize}} & & \|X\|_{*} \\
+  & \text{subject to}             & & \mathcal{P}_\Omega (X) =
+  \mathcal{P}_\Omega (M), \\
+\end{aligned}
+\end{equation*}
+where $\|\cdot\|_{*}$ is the \emph{nuclear norm}, or the sum of the
+singular values and $\mathcal{P}_\Omega (\cdot)$ is the projection
+operator, which makes zero all entries $(i, j) \notin \Omega$.
+
+Singular Value Thresholding works in an iterative, alternating fashion
+reminiscent of the Alternating Direction Method of Multipliers (ADMM).
+The complete matrix $X$ is contructed iteratively using a low-rank,
+low-singular value approximation to an auxiliary sparse matrix $Y$.
+$Y$ is then adjusted to ensure the resulting approximation in the
+subsequent step has matching entries $X_{ij} = M_{ij}$. Each iteration
+consists of the inductive steps
+\begin{equation*}
+\begin{cases}
+X^{k} = \mathrm{shrink}(Y^{k-1}, \tau) \\
+Y^{k} = Y^{k-1} + \delta_k \mathcal{P}_\Omega (M-X^{k}),              \\
+\end{cases}
+\end{equation*}
+where $\mathrm{shrink}(\cdot, \cdot)$ is the \emph{singular value
+  shrinkage operator}, which reduces each singular value by aGiven a
+singular value decomposition $X = U \Sigma V^T$,
+$\Sigma = \mathrm{diag}(\{\sigma_i\}_{1 \le i \le r})$, we can write
+this as
+\begin{equation*}
+\mathrm{shrink}(X, \tau) = U\Sigma_\tau V^T, \ \ \Sigma_\tau = \mathrm{diag}(\{(\sigma_i-\tau)_{+}\}).
+\end{equation*}
+
+
+These two operations, when repeated, approach a low-nuclear norm
+solution by repeatedly shrinking the singular values of X. This
+algorithm has shown success in recovering accurate low-rank solutions
+when the source of $M$ is also low-rank, even though it does not
+optimize this objective directly. The original authors discuss its
+theoretical guarantees in detail, but we choose to omit them in this
+discussion.
+
+SVT has hyperparameters that must be carefully tuned to guarantee
+convergence. The shrinkage value $\tau$ must be set high in order for
+the algorithm to converge, but not too high that it exceeds the true
+singular values. The stepsizes $\delta_k$ are similarly sensitive. The
+stepsize can be set dynamically as well, though we choose to maintain
+a fixed stepsize throughout. Furthermore, we compute the decomposition
+of $Y^K$ in batches, which introduces a new batch size parameter $l$
+that effects the speed of convergence. Also important is the
+initialization of $Y$, for which the authors provide helpful
+strategies. Finally, we use the relative error
+$\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
+criterion. We terminate when this drops below a small $\epsilon$.
+
+We find from experimentation that SVT is frustratingly sensitive to
+the settings of these parameters. The suggested settings only lead to
+convergence for a limited range of matrix sizes and ranks, and
+choosing the correct settings often requires unrealistic knowledge of
+the underlying matrix structure.

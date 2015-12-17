@@ -1,38 +1,70 @@
-In the present paper, the Spectral Matrix Completion (SMC) algorithm presented in Keshavan et al.~\cite{keshavan2010matrix} is implemented. Lets say, $M$ is the matrix whose entry $(i,j) \in [m] \times [n]$ corresponding to the rating user $i$ would assign to movie/joke $j$. $M^E$ is the $m \times n$ matrix that contains the revealed entries of $M$, and is filled with 0's in the other positions 
+Spectral Matrix Completion (SMC), presented in Keshavan et al.
+\cite{keshavan2010matrix} minimizes the reconstruction error of a
+low-rank matrix. Let $M$ be the complete matrix and $M^E$ be the
+$m \times n$ matrix with known entries $(i,j) \in E$ filled in and
+zero entries otherwise. That is,
 \begin{equation}
-M^E_{i,j} = \left \{ \begin{array}{rcl}
-	M_{i,j} & \mbox{if  }  (i,j) \in E \\
-	 0 & \mbox{otherwise} 
-	\end{array} \right.
+M^E_{i,j} = \begin{cases}
+    M_{i,j} & \text{if} \ \  (i,j) \in E \\
+    0      & \text{otherwise}.
+   \end{cases}
 \end{equation}
 
-As presented in~\cite{keshavan2010matrix}, the SMC algorithm has the following structure:
+As presented in~\cite{keshavan2010matrix}, the SMC algorithm has three
+steps.
 \begin{enumerate}
-\item Trim the $M^E$, and let $\widetilde{M}^E$.
+\item Trim $M^E$, giving $\widetilde{M}^E$.
 \item Project $\widetilde{M}^E$ to $T_r(\widetilde{M}^E)$.
-\item Clean residual errors by minimizing the discrepancy F(X,Y).
+\item Clean, minimizing the reconstruction error $F(X,Y)$.
 \end{enumerate}
 
-\subsubsection{Trimming}
-In the trimming step, zero all columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all rows with degree larger than $2|E|/m$, where $|E|$ is the number of non-zero entries in $M$. Trimming leads to 'throwing out information' which makes the underlying true-rank structure more apparent. This effect becomes even more important when the number
-of revealed entries per row/column follows a heavy tail distribution, as for real data.
+\subsection{Trimming}
+In the trimming step, we throw out information in order to make the
+underlying true-rank structure more apparent. First, we zero all
+columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all
+rows with degree larger than $2|E|/m$, where $|E|$ is the number of
+non-zero entries in $M$. This step is crucially important when the
+number of revealed entries per row/column follows a heavy tail
+distribution, as is the case for real data.
 
-\subsubsection{Projection}
-In the projection step, compute the singular value decomposition (SVD) of $M^E$ (with $\sigma_1 \ge \sigma_2 \ge .....\ge 0$)
+\subsection{Projection}
+In the projection step, we build a low-rank reconstruction of $M^E$.
+We begin by computing its the singular value decomposition (SVD). Let
+the singular values be
+$\sigma_1 \ge \sigma_2 \ge ... \sigma_{\min(m,n)} \ge 0$. Therefore,
+the decomposition can be written
 \begin{equation}
-M^E = \sum\limits_{i=1}^{min(m,n)} \sigma_ix_iy_i^T
+  M^E = \sum_{i=1}^{\min(m,n)} \sigma_ix_iy_i^T.
 \end{equation}
-and, then the matrix $T_r(M^E)$ is $(mn/|E|)\sum\limits_{i=1}^r \sigma_ix_iy_i^T$, obtained by setting to 0 all but the $r$ largest singular values. Note that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the orthogonal projection of $M^E$ onto the set of rank-r matrices. 
+The projection
+\begin{equation}
+  T_r(M^E) = \frac{mn}{|E|}\sum\limits_{i=1}^r \sigma_ix_iy_i^T
+\end{equation}
+is obtained by zeroing all but the $r$ largest singular values. Note
+that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the
+orthogonal projection of $M^E$ onto the set of rank-r matrices. TODO:
+how do we choose r?
 
-\subsubsection{Cleaning}
-This is the step where all the magic happens in SMC algorithm. Given $X \in R^{m\times r}$, $Y \in R^{n\times r}$ with $X^TX = m1$ and $Y^TY = n1$, 
+\subsection{Cleaning}
+This is the step where all the magic happens in SMC algorithm. We
+``clean'' the errors produced by the projection step by iteratively
+minimizing the reconstruction error. Given $X \in R^{m\times r}$,
+$Y \in R^{n\times r}$ with $X^TX = mI$ and $Y^TY = nI$,
 \begin{equation}
-F(X,Y) = \min_{S \in R^{r \times r}} F(X,Y,S)
+  F(X,Y) = \min_{S \in R^{r \times r}} F(X,Y,S)
 \end{equation}
 \begin{equation}
-F(X,Y,S) = \frac{1}{2} \sum\limits_{(i,j) \in E} (M_{ij} - (XSY^T)_{ij})^2
+  F(X,Y,S) = \frac{1}{2} \sum\limits_{(i,j) \in E} (M_{ij} - (XSY^T)_{ij})^2
 \end{equation}
-The cleaning step consists in writing $T_r(\widetilde{M}^E) = X_0S_0Y_0^T$ and minimizing $F(X, Y)$ locally with initial
-condition $X = X_0$, $Y = Y_0$. Note that $F(X, Y)$ is easy to evaluate since it is defined by minimizing the quadratic function
-$S \mapsto F(X, Y, S)$ over the low-dimensional matrix $S$. Further it depends on $X$ and $Y$ only through
-their column spaces. In geometric terms, $F$ is a function defined over the cartesian product of two Grassmann manifolds. Optimization over Grassmann manifolds is a well understood topic~\cite{edelman1998geometry} and efficient algorithms (in particular Newton and conjugate gradient) can be applied. In the present algorithm, gradient descent with line search is used to minimize $F(X, Y)$.
+We initiliaze $T_r(\widetilde{M}^E) = X_0S_0Y_0^T$ and minimize
+$F(X, Y)$ locally with initial condition $X = X_0$, $Y = Y_0$. Note
+that $F(X, Y)$ is easy to evaluate since it is defined by minimizing
+the quadratic function $S \mapsto F(X, Y, S)$ over the low-dimensional
+matrix $S$. Further it depends on $X$ and $Y$ only through their
+column spaces. In geometric terms, $F$ is a function defined over the
+cartesian product of two Grassmann manifolds. Optimization over
+Grassmann manifolds is a well understood
+topic~\cite{edelman1998geometry} and efficient algorithms (in
+particular Newton and conjugate gradient) can be applied. In our
+implementation, we minimize $F(X, Y)$, using gradient descent with
+line search.
