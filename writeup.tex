@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{amsmath}
+\usepackage{graphicx}
 %\documentstyle[nips14submit_09,times,art10]{article} % For LaTeX 2.09
 
 
@@ -11,7 +12,7 @@
 
 \author{
 Sriram Ganesan\thanks{ The names are printed in alphabetical order by last name.} \\
-\texttt{---} \\
+\texttt{sriramg@umich.edu} \\
 \And
 Nitin Garg \\
 \texttt{gargn@umich.edu} \\
@@ -46,6 +47,12 @@ Jonathan Stroud \\
 \end{abstract}
 
 \section{Introduction}
+
+Recovering a low rank matrix from a given subset of its entries is a well known problem in collaborative filtering \cite{r25} , dimensionality reduction\cite{r20, r28} and multi-class learning \cite{r2, r22}, finding the lowest rank matrix satisfying equality constraints is NP-hard. The complexity class of decision problems that are intrinsically harder than those that can be solved by a nondeterministic Turing machine in polynomial time. Examples of NP-hard problems include the Hamiltonian cycle and traveling salesman problems. All known algorithms which can compute lowest rank solution for all instances require time atleast exponential in the dimensions of the matrix in both theory and practice.
+
+Candes and Recht showed that most low rank matrices could be recovered from most sufficiently large sets of entries by computing the matrix of minimum nuclear norm that agreed with the provided entries\cite{r4} and the known set of entries could comprise a vanishing fraction of the entire matrix. The nuclear norm is equal to the sum of the singular values of a matrix and is the best convex lower bound of the rank function on the set of matrices whose singular values are all bounded by 1. The intuition behind this measure is that whereas the rank function counts the number of nonvanishing singular values, the nuclear norm sums their amplitude, much like how the 1- norm is a useful substitute for counting the number of nonzeros in a vector. Moreover, the nuclear norm can be minimized subject to equality constraints via semidefinite programming.
+
+Nuclear norm minimization had long been observed to produce very low-rank solutions in practice (see, for example \cite{r11, r12, r26}), but only very recently was there any theoretical basis for when it produced the minimum rank solution. The first paper to provide such foundations was \cite{r24}, where Recht, Fazel, and Parrilo developed probabilistic techniques to study average case behavior and showed that the nuclear norm heuristic could solve most instances of the rank minimization problem assuming the number of linear constraints was sufficiently large. The results in \cite{r24} inspired a groundswell of interest in theoretical guarantees for rank minimization, and these results lay the foundation for \cite{r4}. Candes and Recht’s bounds were subsequently improved by Candes and Tao \cite{r7} and Keshavan, Montanari, and Oh \cite{keshavan2010matrix} to show that one could, in special cases, reconstruct a low-rank matrix by observing a set of entries of size at most a polylogarithmic factor larger than the intrinsic dimension of the variety of rank r matrices.
 
 \emph{Collaborative Filtering} is the process of learning patterns by
 aggregating information over multiple sources of data, typically
@@ -212,8 +219,8 @@ neighbor has the largest weight.
 
 \section{Experimental Results}
 \subsection{Synthetic Data}
-The performance of the SVT and SMC algorithms were compared on synthetically generated matrices of varying ranks, sizes and sparsity. Specifically, low rank square matrices of sizes 1000 and 5000 with ranks of 5, 10 and 20, and sparsity levels of 30\%, 50\% and 70\% were used. As a baseline to SVT and SMC, a column mean matrix completion method was implemented. This method predicts the average column value for all missing entries. 
-In the following figures we see mean absolute error and run time averaged over the categories of size, rank and sparsity. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all experiments were run on CAEN lab computers (8GB memory with one core i7 processors).
+The performance of the SVT and SMC algorithms were compared on synthetically generated matrices of varying ranks, sizes and sparsity. Specifically, the algorithms were tested on all combinations of matrix size(1000, 5000), rank (5, 10 and 20), and sparsity(30\%, 50\% and 70\%). As a baseline to SVT and SMC, a column mean matrix completion method was implemented. This method predicts the average column value for all missing entries. 
+In the Tables~\ref{MAE},~\ref{Time} the mean absolute error and the run time is averaged over the categories of size, rank and sparsity. For example, out of the eighteen tests that were run, nine tests include the matrix of size 1000x1000. Therefore the mean absolute error value for all nine tests are averaged in order to represent the values in the size 1000 column of the table below. Mean absolute error is the absolute value of the average error on the unknown entries. Run time is measured in seconds and all simulations were run at University of Michigan's CAEN lab computers (8GB memory with one core i7 processors). The columns in Tables~\ref{MAE},~\ref{Time} contain the averaged mean absolute error and the run time for all experiments.
 
 \begin{table} [ht!]
 \centering
@@ -234,43 +241,113 @@ In the following figures we see mean absolute error and run time averaged over t
 \begin{table} [ht!]
 \centering
  \caption{Mean Absolute Error}
- \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+ \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
   \hline \hline
-  & & \text{Size} & &\text{Rank}  & &  &\text{Sparsity}&\\
-\text{Algorithm} & 1000 & 5000 & 5 & 10 & 20 & 30\% & 50\% & 70\% \\
+   & &\text{Rank}  & &  &\text{Sparsity}&& \text{Size} & \text{(Average)} \\
+\text{Algorithm} & 5 & 10 & 20 & 30\% & 50\% & 70\% & 1000 & 5000 \\
 \hline
-\text{Mean} & 9.43 & 10.26 & 5.65 & 9.90 & 13.98 & 9.10 & 10.21 & 10.21 \\
-\text{SVT} & 1.37 & 7.6E-04 & 2.05 & 7.2E-04 & 1.4E-03 & 2.05 & 8.4E-04 & 9.6E-04\\
-\text{SMC} & 1.4E-04 & 3.7E-07 & 2.1E-04 & 4.3E-07 & 4.5E-07 & 2.1E-04 & 4.2E-07 & 3.8E-07\\
+\text{Mean}  & 5.65 & 9.90 & 13.98 & 9.10 & 10.21 & 10.21 & 9.43 & 10.26\\
+\text{SVT}  & 2.05 & 7.2E-04 & 1.4E-03 & 2.05 & 8.4E-04 & 9.6E-04 & 1.37 & 7.6E-04\\
+\text{SMC} & 2.1E-04 & 4.3E-07 & 4.5E-07 & 2.1E-04 & 4.2E-07 & 3.8E-07  & 1.4E-04 & 3.7E-07\\
  \hline \hline
-\label{modAl}
+\label{MAE}
  \end{tabular}
 \end{table}
 
 \begin{table} [ht!]
 \centering
  \caption{Run Time (in seconds)}
- \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+ \begin{tabular}{l @{\hspace{12pt}}| l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}|l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
   \hline \hline
- & & \text{Size} & &\text{Rank}  & &  &\text{Sparsity}&\\
-\text{Algorithm} & 1000 & 5000 & 5 & 10 & 20 & 30\% & 50\% & 70\% \\
+  & &\text{Rank}  & &  &\text{Sparsity}&&\text{Size} & \text{(Average)} \\
+\text{Algorithm}& 5 & 10 & 20 & 30\% & 50\% & 70\%  & 1000 & 5000 \\
 \hline
-\text{Mean} & 0.01 & 0.22 & 0.12 & 0.12 & 0.10 & 0.11 & 0.11 & 0.12 \\
-\text{SVT} & 6 & 98 & 26 & 39 & 92 & 42 & 54 & 60\\
-\text{SMC} & 86 & 1433 & 252 & 405 & 1623 & 1021 & 510 & 748\\
+\text{Mean}  & 0.12 & 0.12 & 0.10 & 0.11 & 0.11 & 0.12 & 0.01 & 0.22\\
+\text{SVT} & 26 & 39 & 92 & 42 & 54 & 60& 6 & 98 \\
+\text{SMC}& 252 & 405 & 1623 & 1021 & 510 & 748 & 86 & 1433 \\
 \hline \hline
-\label{modAl}
+\label{Time}
  \end{tabular}
 \end{table}
 
-Both SVT and SMC outperform the mean method. In addition, SMC consistently outperforms SVT in orders of magnitude of three.  While SMC significantly outperforms SVT in terms of accuracy, SVT significantly outperforms SMC in terms of time.  It appears that the time cost of SMC grows exponentially with rank size. Even at rank five, the smallest tested rank value, SMC runs 9.6 times slower than SVT. 
+Both SVT and SMC outperform the baseline column-mean method. In addition, SMC consistently outperforms SVT in terms of mean absolute error, by order of three. While SMC significantly outperforms SVT in terms of accuracy, SVT significantly outperforms SMC in terms of time.  It appears that the computational cost of SMC grows exponentially with rank size. Even at rank five, the smallest tested rank value, SMC runs 9.6 times slower than SVT. 
 
 
-\subsection{Jester Dataset}
+\subsection{Real Datasets}
+The Jester joke dataset contains 4.1 million rating for 100 jokes from 73,421 users~\cite{r30}. 
+
+For the purpose of comparison between different algorithms, namely SMC, SVT, and Eigentaste (as baseline), {100, 200, 1000} users are selected at random.  Two ratings at random from each user is selected as a test set and the Normalized Mean Absolute Eroor (NMAE) is compared in this set (similar to presented in~\cite{oh2010thesis}. The NMAE is a commonly used performance metric in collaborative filtering. The Mean Absolute Error (MAE) is define as:
+\begin{equation}
+MAE = \frac{1}{|T|}\sum\limits_{(u,i) \in T} |M_{ui} - \widetilde{M}_{ui}|
+\end{equation}
+where $M_{ui}$ is the original ratings, $\widetilde{M}_{ui}$ is the predicted rating for user $u$, item $i$, and $T$ is the test set. Then, the NMAE can be defined as:
+\begin{equation}
+NMAE = \frac{MAE}{M_{max}-M_{min}}
+\end{equation}
+where $M_{max}$ and $M_{min}$ are the upper and lower bounds for the ratings. In the Jester joke dataset, the rating are in [-10,10].
+%\begin{figure}[h!]
+%\centering
+%\includegraphics[trim=0 0 0 0, clip, width=1.0\linewidth]{eigentaste_jester.tiff}
+%\caption{\footnotesize Figure shows the comparison between the original NACA 0009, undeformed multipoint hydrostructural optimized foil, and deformed multipoint hydrostructural optimized foil at $C_L = 0.65$. Figure also shows the zoomed-in view of the trailing edge thickness at the root. Note the increased thickness for the multipoint optimized foil at the root to meet the stress constraints for the higher loading cases. The trailing thickness of the optimized foil is higher than the original NACA 0009 foil, can also be noted. The results are obtained using the RANS solver with $Re= 1.0 \times 10^6$ and $V = 12.4$ m/s. }
+%\label{Geo}
+%\end{figure}
+
+In the Table~\ref{SMC}, numerical results on the Jester joke dataset with SMC algorithm is presented. The number of jokes are fixed at 100 and number of users were varied as {100, 200, 1000}. The NMAE is calculated as shown earlier and CPU time is presented as the time (in seconds) on University of Michigan's CAEN lab computer(8GB memory with one core i7 processors).
+
+\begin{table} [h]
+\centering
+ \caption{Numerical results on the Jester joke dataset with SMC algorithm}
+ \begin{tabular}{l @{\hspace{12pt}} l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+  \hline \hline
+  \text{ num. user} & \text{num. jokes} &\text{samp. ratio}  & \text{NMAE}&\text{Time (in sec.)}\\
+\hline
+100 & 100 & 5353 & 0.1573 & 25.31\\
+200 & 100 & 10921 & 0.1603 & 17.44\\
+1000 & 100 & 57578 & 0.1647 & 44.95\\
+\hline \hline
+\label{SMC}
+ \end{tabular}
+\end{table}
+
+
+\begin{table} [h]
+\centering
+ \caption{NMAE comparison on the Jester joke dataset for SMC, SVT, and Eigentaste algorithm}
+ \begin{tabular}{l @{\hspace{12pt}} l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}l @{\hspace{12pt}}}% p{2cm}}
+  \hline \hline
+ & & & \text{NMAE} &\\
+  \text{ num. user} & \text{num. jokes} &\text{SMC}  & \text{SVT}&\text{Eigentaste}\\
+\hline
+100 & 100 & 0.1573 & 0.1865 &0.187\\
+200 & 100 & 0.1603 & 0.1843 & 0.190\\
+1000 & 100 & 0.1647& 0.1714 & 0.237\\
+\hline \hline
+\label{Compare}
+ \end{tabular}
+\end{table}
+
+We have eigentaste, SMC and SVT on subsets of the Jester dataset.
+Compare accuracy and time. 
+Mention that we used LMSVD in SMC for this version.
 
 \section{Conclusions}
 
-\section{Future Work}
+General Points:
+synthetic data conclusions: SMC and SVT are better than baseline mean method.
+SMC attains better accuracy than SVT but takes longer.
+One potential improvement to SMC is to use the LMSVD mentioned in the SVT paper. 
+We used this upgrade in the Jester dataset tests and we found that 
+
+
+
+\section{Group Member's Accomplishments}
+All team members participated in data processing early in the project.
+All team members contributed to the final report. Each member was responsible for the
+writeup regarding their individual experiments.
+Sriram spearheaded the eigentaste approach. He discovered ways of modifying these methods
+to supercharge performance and he also contributed a great deal towards the performance metric for different algorithms.
+Nitin and Jeeheh implemented the SMC algorithm. Jeeheh took charge in getting the performance comparison for the synthetic data. Nitin contributed towards the performance metric for different algorithms and also helped integrating the final report together.
+Jonathan was in command of the SVT algorithm. SVT algorithm lot of parameter tuning too. He also created those nice-looking visulaization plots in the report.
 
 
 \bibliographystyle{plain}
