@@ -68,12 +68,11 @@ minimization is NP-hard, meaning that is at least as hard as all those
 that can be solved by a nondeterministic Turing machine in polynomial
 time, like the Hamiltonian Cycle and Traveling Salesman problems. In
 both theory and practice, all algorithms that perform this task have
-time complexity exponential in the size of the matrix. We must settle
-for an approximation.
+time complexity exponential in the size of the matrix. \color{red} We must settle
+for an approximation.\color{black}
 
-Candes and Recht showed that most low-rank matrices could be recovered
-by instead minimizing the nuclear norm, defined as the sum of the
-singular values \cite{r4}. Theoretically, this is because the nuclear
+Candes and Recht showed that most low-rank matrices could be recovered instead by minimizing the nuclear norm, defined as the sum of the
+singular values \cite{r4}. Theoretically, the nuclear
 norm is the tightest convex lower bound on the rank function for
 singular values no greater than 1. Intuitively, while the rank
 function counts the number of nonzero singular values, the nuclear
@@ -82,14 +81,14 @@ substitute for counting the number of nonzero entries in a vector.
 Conveniently, the nuclear norm can be minimized efficiently subject to
 equality constraints via semidefinite programming.
 
-Nuclear norm minimization has long been observed to produce fairly
-low-rank solutions \cite{r11, r12, r26}), but only recently was there
+\color{red}Nuclear norm minimization has long been observed to produce fairly
+low-rank solutions \cite{r11, r12, r26}, but only recently was there
 any theoretical basis for when it produced the true minimum rank
-solution. The first paper to provide such foundations was \cite{r24},
+solution. \color{black}The first paper to provide such foundations was \cite{r24},
 where Recht, Fazel, and Parrilo developed probabilistic techniques to
 study average case behavior and showed that the nuclear norm heuristic
 could solve most instances of the rank minimization problem when the
-number of linear constraints was sufficiently large. This inspired a
+number of linear constraints were sufficiently large. This inspired a
 groundswell of interest in theoretical guarantees for rank
 minimization, and these results lay the foundation for \cite{r4}.
 Candes and Recht’s bounds were subsequently improved by Candes and Tao
@@ -105,17 +104,148 @@ filtering baselines, using both synthetic and real-world data. The
 Singular Value Thresholding (SVT) algorithm was introduced in ``A
 Singular Value Thresholding Algorithm for Matrix Completion''
 \cite{cai2010singular}. Spectral Matrix Comletion (SMC) was introduced
-in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}
-and compare their effectiveness.
+in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}. \color{red}
+and compare their effectiveness.\color{black}
 
 
 \section{Singular Value Thresholding}
 
-\input{svt}
+Formally, Singular Value Thresholding (SVT) addresses the optimization
+problem
+\begin{equation*}
+\begin{aligned}
+  & \underset{X}{\text{minimize}} & & \|X\|_{*} \\
+  & \text{subject to}             & & \mathcal{P}_\Omega (X) =
+  \mathcal{P}_\Omega (M), \\
+\end{aligned}
+\end{equation*}
+where $\|\cdot\|_{*}$ is the \emph{nuclear norm}, or the sum of the
+singular values and $\mathcal{P}_\Omega (\cdot)$ is the projection
+operator, which makes zero all entries $(i, j) \notin \Omega$.
+
+Singular Value Thresholding works in an iterative, alternating fashion
+reminiscent of the Alternating Direction Method of Multipliers (ADMM).
+The complete matrix $X$ is contructed iteratively using a low-rank,
+low-singular value approximation to an auxiliary sparse matrix $Y$.
+$Y$ is then adjusted to ensure the resulting approximation in the
+subsequent step has matching entries $X_{ij} = M_{ij}$. Each iteration
+consists of the inductive steps
+\begin{equation*}
+\begin{cases}
+X^{k} = \mathrm{shrink}(Y^{k-1}, \tau) \\
+Y^{k} = Y^{k-1} + \delta_k \mathcal{P}_\Omega (M-X^{k}),              \\
+\end{cases}
+\end{equation*}
+where $\mathrm{shrink}(\cdot, \cdot)$ is the \emph{singular value
+  shrinkage operator}, which reduces each singular value by a given
+singular value decomposition $X = U \Sigma V^T$,
+$\Sigma = \mathrm{diag}(\{\sigma_i\}_{1 \le i \le r})$, we can write
+this as
+\begin{equation*}
+\mathrm{shrink}(X, \tau) = U\Sigma_\tau V^T, \ \ \Sigma_\tau = \mathrm{diag}(\{(\sigma_i-\tau)_{+}\}).
+\end{equation*}
+
+
+These two operations when repeated, approach a low-nuclear norm
+solution by repeatedly shrinking the singular values of X. This
+algorithm has shown success in recovering accurate low-rank solutions
+when the source of $M$ is also low-rank, even though it does not
+optimize this objective directly. The original authors discuss its
+theoretical guarantees in detail, but we choose to omit them in this
+discussion.
+
+SVT has hyperparameters that must be carefully tuned to guarantee
+convergence. The shrinkage value $\tau$ must be set high in order for
+the algorithm to converge, but not too high that it exceeds the true
+singular values. The stepsizes $\delta_k$ are similarly sensitive. The
+stepsize can be set dynamically as well, though we choose to maintain
+a fixed stepsize throughout. Furthermore, we compute the decomposition
+of $Y^K$ in batches, which introduces a new batch size parameter $l$
+that effects the speed of convergence. Also important is the
+initialization of $Y$, for which the authors provide helpful
+strategies. Finally, we use the relative error
+$\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
+criterion. We terminate when this drops below a small $\epsilon$.
+
+We find from experimentation that SVT is frustratingly sensitive to
+the settings of these parameters. The suggested settings only lead to
+convergence for a limited range of matrix sizes and ranks, and
+choosing the correct settings often requires unrealistic knowledge of
+the underlying matrix structure.
 
 \section{Spectral Matrix Completion}
 
-\input{smc}
+Spectral Matrix Completion (SMC), presented in Keshavan et al.
+\cite{keshavan2010matrix} minimizes the reconstruction error of a
+low-rank matrix. Let $M$ be the complete matrix and $M^E$ be the
+$m \times n$ matrix with known entries $(i,j) \in E$ filled in and
+zero entries otherwise. That is,
+\begin{equation}
+M^E_{i,j} = \begin{cases}
+    M_{i,j} & \text{if} \ \  (i,j) \in E \\
+    0      & \text{otherwise}.
+   \end{cases}
+\end{equation}
+
+As presented in~\cite{keshavan2010matrix}, the SMC algorithm has three
+steps.
+\begin{enumerate}
+\item Trim $M^E$, giving $\widetilde{M}^E$.
+\item Project $\widetilde{M}^E$ to $T_r(\widetilde{M}^E)$.
+\item Clean, minimizing the reconstruction error $F(X,Y)$.
+\end{enumerate}
+
+\subsection{Trimming}
+In the trimming step, we throw out information in order to make the
+underlying true-rank structure more apparent. First, we zero all
+columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all
+rows with degree larger than $2|E|/m$, where $|E|$ is the number of
+non-zero entries in $M$. This step is crucially important when the
+number of revealed entries per row/column follows a heavy tail
+distribution, as is the case for most of the real data.
+
+\subsection{Projection}
+In the projection step, we build a low-rank reconstruction of $M^E$.
+We begin by computing its the singular value decomposition (SVD). Let
+the singular values be
+$\sigma_1 \ge \sigma_2 \ge ... \sigma_{\min(m,n)} \ge 0$. Therefore,
+the decomposition can be written as,
+\begin{equation}
+  M^E = \sum_{i=1}^{\min(m,n)} \sigma_ix_iy_i^T.
+\end{equation}
+The projection
+\begin{equation}
+  T_r(M^E) = \frac{mn}{|E|}\sum\limits_{i=1}^r \sigma_ix_iy_i^T
+\end{equation}
+is obtained by zeroing all but the $r$ largest singular values. Note
+that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the
+orthogonal projection of $M^E$ onto the set of rank-r matrices. \color{red}TODO:
+how do we choose r?\color{black}
+
+\subsection{Cleaning}
+This is the step where actual optimization takes place in SMC algorithm. We
+``clean'' the errors produced by the projection step by iteratively
+minimizing the reconstruction error. Given $X \in R^{m\times r}$,
+$Y \in R^{n\times r}$ with $X^TX = mI$ and $Y^TY = nI$,
+\begin{equation}
+  F(X,Y) = \min_{S \in R^{r \times r}} F(X,Y,S)
+\end{equation}
+\begin{equation}
+  F(X,Y,S) = \frac{1}{2} \sum\limits_{(i,j) \in E} (M_{ij} - (XSY^T)_{ij})^2
+\end{equation}
+We initiliaze $T_r(\widetilde{M}^E) = X_0S_0Y_0^T$ and minimize
+$F(X, Y)$ locally with initial condition $X = X_0$, $Y = Y_0$. Note
+that $F(X, Y)$ is easy to evaluate since it is defined by minimizing
+the quadratic function $S \mapsto F(X, Y, S)$ over the low-dimensional
+matrix $S$. Further, it depends on $X$ and $Y$ only through their
+column spaces. In geometric terms, $F$ is a function defined over the
+cartesian product of two Grassmann manifolds. Optimization over
+Grassmann manifolds is a well understood
+topic~\cite{edelman1998geometry} and efficient algorithms (in
+particular Newton and conjugate gradient) can be applied. In our
+implementation, we minimize $F(X, Y)$, using gradient descent with
+line search.
+
 
 \section{Baseline Algorithms}
 
@@ -124,7 +254,7 @@ completion.
 
 \subsection{Eigentaste}
 
-Eigentaste is a collaborative filtering algorithm specifically
+Eigentaste is an another collaborative filtering algorithm specifically
 designed for the Jester Dataset. It relies on the assumption that a
 subset of the columns will be dense, corresponding to a few ``seed''
 items which every user is required to review. Eigentaste applies
@@ -149,7 +279,7 @@ C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
 
 The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
 
-TODO: make this next part more concise
+\color{red}TODO: make this next part more concise\color{black}
 
 \textit{Recursive Rectangular Clustering: }
 
@@ -193,13 +323,13 @@ largest weight.
 The performance of the SVT and SMC algorithms were compared on
 synthetically generated matrices of varying ranks, sizes and sparsity.
 Specifically, the algorithms were tested on all combinations of matrix
-size(1000, 5000), rank (5, 10 and 20), and sparsity(30\%, 50\% and
+size (1000, 5000), rank (5, 10 and 20), and sparsity (30\%, 50\% and
 70\%). As a baseline to SVT and SMC, a column mean matrix completion
 method was implemented. This method predicts the average column value
 for all missing entries. In the Tables~\ref{MAE},~\ref{Time} the mean
 absolute error and the run time is averaged over the categories of
-size, rank and sparsity. For example, out of the eighteen tests that
-were run, nine tests include the matrix of size 1000x1000. Therefore
+size, rank, and sparsity. For example, out of the eighteen tests that
+were run, nine tests include the matrix of size 1000 $\times$ 1000. Therefore
 the mean absolute error value for all nine tests are averaged in order
 to represent the values in the size 1000 column of the table below.
 Mean absolute error is the absolute value of the average error on the
@@ -251,11 +381,13 @@ and the run time for all experiments.
 
 
 While low rank is a desirable property and a suitable target for
-optimization, we are primarily concerend with accurately predicting
+optimization, we are primarily concerned with accurately predicting
 unknown entries in a matrix. 
 
 \begin{table} [ht!]
 \begin{center}
+\caption{Mean Absolute Error of predictions of unknown entries. The tolerance in SMC and SVT algorithms were set to $10^-6$ as the stopping criterion.}
+
  \begin{tabular}{l | l l l | l l l |l l}% p{2cm}}
   \hline \hline
                & \mc{3}{c}{Rank}             & \mc{3}{c}{Sparsity}         & \mc{2}{c}{Size ($n \times n$)} \\
@@ -265,9 +397,7 @@ unknown entries in a matrix.
   SMC          & 2.1E-04 & 4.3E-07 & 4.5E-07 & 2.1E-04 & 4.2E-07 & 3.8E-07 & 1.4E-04 & 3.7E-07\\
  \hline \hline
  \end{tabular}
- \caption{Mean Absolute Error of predictions of unknown entries. TODO:
- add more details about experiment parameters}
-\end{center}
+ \end{center}
 \label{MAE}
 \end{table}
 
@@ -278,7 +408,7 @@ consistently outperforms SVT in terms of mean absolute error, often by
 several orders of magnitude.
 
 We are also concerned with the speed at which we arrive at accurate
-predictions. Table \ref{Time} shows that, while SMC significantly
+predictions. Table~\ref{Time} shows that, while SMC significantly
 outperforms SVT in terms of accuracy, SVT significantly outperforms
 SMC in terms of time. It appears that the computational cost of SMC
 grows exponentially with the rank. Even at rank $5$, the smallest
@@ -287,6 +417,7 @@ tested rank value, SMC runs 9.6 times slower than SVT.
 
 \begin{table} [ht!]
 \centering
+ \caption{Run Time (in seconds) for different algorithms.}
  \begin{tabular}{l | l l l |l l l | l l}% p{2cm}}
   \hline \hline
              &  \mc{3}{c}{Rank}   & \mc{3}{c}{Sparsity} & \mc{2}{c}{Size ($n \times n$)} \\
@@ -296,8 +427,7 @@ tested rank value, SMC runs 9.6 times slower than SVT.
   SMC        & 252 & 405 & 1623   & 1021 & 510 & 748    & 86 & 1433 \\
   \hline \hline
  \end{tabular}
- \caption{Run Time (in seconds) TODO: add more details about
- experiment parameters}
+
  \label{Time}
 \end{table}
 
@@ -313,14 +443,14 @@ completely dense columns, allowing us to apply both supervised
 learning algorithms (Eigentaste) and matrix completion algorithms
 (SVT, SMC). We hypothesize that the matrix completion algorithms will
 outperform those that only take advantage of the dense columns because
-they are capable of utilizing all data during training.
+matrix completion algorithms are capable of utilizing all data during training.
 
 For the purpose of evaluation we randomly select subsets of 100, 200,
 and 1000 users' ratings from the Jester Dataset. We choose two ratings
 at random from each user as test points and leave the remainder for
-training. We evaluate three algorithms, Eigentaste, SMC, and SVT,
+training. We evaluate four algorithms, Eigentaste, k-nearest neighbor ($K = 50$), SMC, and SVT,
 using the Normalized Mean Absolute Error (NMAE) of the reconstruction
-on the test points, similar to \cite{oh2010thesis}.
+on the test points, similar to~\cite{oh2010thesis}.
 
 The NMAE, a commonly used performance metric in collaborative
 filtering, is defined in terms of The Mean Absolute Error (MAE):
@@ -351,11 +481,29 @@ $[-10,10]$.
 %\label{Geo}
 %\end{figure}
 
-In the Table~\ref{SMC}, we present numerical results on the Jester
-joke dataset with the SMC algorithm.
+Table~\ref{Compare} comapres the NMAE for different number of users with all the four algorithms, namely, SMC, SVT, Eigentaste, and K-nearest neighbor. As noted from table~\ref{Compare}, SMC performs the best for all the different size of users. Thus, in Table~\ref{SMC}, we present detailed numerical results on the Jester joke dataset with the SMC algorithm.
 
 \begin{table} [h]
 \centering
+  \caption{NMAE comparison on the Jester joke dataset for SMC, SVT, Eigentaste, and K-nearest neighbour algorithms.}
+ \begin{tabular}{l l | l l l l}% p{2cm}}
+  \hline \hline
+   & & \mc{3}{c}{NMAE}\\
+  \# user & \# jokes & SMC  & SVT & Eigentaste & K-nearest neighbor ($K=50$)\\
+\hline
+100 & 100 & 0.1573 & 0.1865 &0.1873 & 0.2088\\
+200 & 100 & 0.1603 & 0.1844 & 0.1909 & 0.2123\\
+1000 & 100 & 0.1647& 0.1708 & 0.2371 & 0.2134\\
+\hline \hline
+\end{tabular}
+\label{Compare} 
+\end{table}
+
+\begin{table} [h]
+\centering
+ \caption{Numerical results on the Jester joke dataset with SMC
+   algorithm. Times reported are from a University of Michigan's CAEN
+   lab computer (8GB memory with one core i7 processor)}
  \begin{tabular}{l l l l l}% p{2cm}}
    \hline \hline
    \# users & \# jokes & samp. ratio & NMAE & Time (s)\\
@@ -365,35 +513,11 @@ joke dataset with the SMC algorithm.
    1000 & 100 & 57578 & 0.1647 & 44.95\\
    \hline \hline
  \end{tabular}
- \caption{Numerical results on the Jester joke dataset with SMC
-   algorithm. Times reported are from a University of Michigan's CAEN
-   lab computer(8GB memory with one core i7 processor)}
+
 \label{SMC}
 \end{table}
 
-
-\begin{table} [h]
-\centering
- 
- \begin{tabular}{l l | l l l }% p{2cm}}
-  \hline \hline
-   & & \mc{3}{c}{NMAE}\\
-  \# user & \# jokes & SMC  & SVT & Eigentaste\\
-\hline
-100 & 100 & 0.1573 & 0.1865 &0.187\\
-200 & 100 & 0.1603 & 0.1843 & 0.190\\
-1000 & 100 & 0.1647& 0.1714 & 0.237\\
-\hline \hline
-\end{tabular}
- \caption{NMAE comparison on the Jester joke dataset for SMC, SVT,
- and Eigentaste algorithms.}
-\label{Compare}
- 
-\end{table}
-
-We have eigentaste, SMC and SVT on subsets of the Jester dataset.
-Compare accuracy and time. Mention that we used LMSVD in SMC for this
-version.
+To conclude, for the Jester joke dataset SMC algorithm performs best (in terms of NMAE) amongst the algorithms we compared against. 
 
 \subsubsection{Visualization}
 
@@ -459,7 +583,7 @@ the dyslexic devil worshiper? \\
 \label{jokes2d}
 \end{figure}
 
-In figure \ref{jokes2d} we find that the two principal components in
+In figure~\ref{jokes2d} we find that the two principal components in
 the space of jokes correspond to short, simple puns (left) versus
 longer, complex jokes (right), and rowdy jokes (top) versus clean
 jokes (bottom). Only a few jokes are given here, but at closer
