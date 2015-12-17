@@ -219,8 +219,7 @@ The projection
 \end{equation}
 is obtained by zeroing all but the $r$ largest singular values. Note
 that apart from the rescaling factor $(mn/|E|)$, $T_r(M^E)$ is the
-orthogonal projection of $M^E$ onto the set of rank-r matrices. \color{red}TODO:
-how do we choose r?\color{black}
+orthogonal projection of $M^E$ onto the set of rank-r matrices. The rank of the matrix, $r$, should either be supplied by the user or it will be estimated using the change in consecutive singular values.
 
 \subsection{Cleaning}
 This is the step where actual optimization takes place in SMC algorithm. We
@@ -314,7 +313,7 @@ algorithm. We used a function of Euclidean distance from user i to
 user p as the weight w(i, p), and $\kappa$ = $\sum_{k=1}^n w(i,p)$.
 Specifically, if we are interested in q nearest neighbors, $w(i; p) =
 d(i, q +1)- d(i, p)$. This ensures that i’s closest neighbor has the
-largest weight.
+largest weight. In the present paper, we are using $K=50$ as the basline algorithm to compare against more sophisticated algorithms.
 
 \section{Experimental Results}
 
@@ -386,7 +385,7 @@ unknown entries in a matrix.
 
 \begin{table} [ht!]
 \begin{center}
-\caption{Mean Absolute Error of predictions of unknown entries. The tolerance in SMC and SVT algorithms were set to $10^-6$ as the stopping criterion.}
+\caption{Mean Absolute Error of predictions of unknown entries. The tolerance in SMC and SVT algorithms were set to $10^{-6}$ as the stopping criterion.}
 
  \begin{tabular}{l | l l l | l l l |l l}% p{2cm}}
   \hline \hline
@@ -592,29 +591,17 @@ inspection these observations seem to hold true in general.
 
 \section{Conclusions}
 
-General Points: synthetic data conclusions: SMC and SVT are better
-than baseline mean method. SMC attains better accuracy than SVT but
-takes longer. One potential improvement to SMC is to use the LMSVD
-mentioned in the SVT paper. We used this upgrade in the Jester dataset
-tests and we found that
+In the present paper, we explained various algorithms to solve matrix completion problem. In particular, we focused on Spectral Matrix Completion (SMC) algorithm and Spectral Value Thresholding (SVT) algorithm. We compared these sophisticated algorithm with various baseline algorithms, namely, column mean and K-nearest algorithm. 
+We checked the perfomance of the algorithms with synthetic data, with varying size, rank, and sparsity of the input matrix. We concluded that both SMC and SVT performs better than the baseline column-mean algorithm. Between SMC and SVT, while the SMC attains better accuracy than SVT, SMC takes longer time to converge than SVT. 
+For the Jester joke datatset, we compared NMAE (Normalized Mean Absolute Error) for different users ({100, 200, 1000}) on SMC, SVT, Eigentaste, and K-nearest neighbor (with $K=50$). We concluded that the SMC performs the best (in terms for NMAE) for all the user sets selected in this paper. In terms of NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest neighbor. This trent follows the intuition as well.
+Lastly, we present a two dimensional representation of the entire 100 jokes in the Jester joke datatset. We went through the jokes individually, and tried to guess the axes to the best of our abilities. It seems it follows the general trend, as explained in the paper.
 
 
 
 \section{Group Member's Accomplishments}
 
-All team members participated in data processing early in the project.
-All team members contributed to the final report. Each member was
-responsible for the writeup regarding their individual experiments.
-Sriram spearheaded the implementation of Eigentaste. He discovered
-ways of modifying these methods to supercharge performance and also
-contributed a great deal towards the performance evaluation for
-different algorithms. Nitin and Jeeheh implemented the SMC algorithm.
-Jeeheh took charge in getting the performance comparison for the
-synthetic data. Nitin contributed towards the performance metric for
-different algorithms and also helped integrating the final report
-together. Jonathan was in command of implementing the SVT algorithm
-and tuning the parameters for experiments. He also created the
-nice-looking visualizations of the Jester joke in the report.
+All team members participated in all aspects of the project as well as the final report. However, each member was
+responsible for taking the lead on specific tasks. All team members contributed towards the literature review as well. Sriram was in charge of implementing Eigentaste. He also had a leading role in the comparison of the methods on the Jester dataset. Nitin and Jeeheh lead the implementation of the SMC algorithm. Jeeheh took charge of the performance comparison on synthetic data. Nitin got the performance metric for different algorithms and  also carried out integration of the final report. Jonathan was in command of implementing the SVT algorithm and the two dimensional visualizations of the Jester dataset.
 
 
 \bibliographystyle{plain}
