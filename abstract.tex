@@ -1,1 +1,22 @@
-Matrix completion, is the task of filling in the unknown entries of a sparse matrix. This problem is central in recommender systems and collaborative filtering, which provide individualized product suggestions based on ratings gathered from a large set of users. Matrix completion algorithms are used effectively today to provide helpful recommendations for users of services such as Netflix and Amazon.com. In the present paper, the baseline algorithms for matrix completion, such as eigentaste, nearest K-neighbor, and column mean are compared against the more sophisticated matrix completion algorithms, such as Spectral Matrix Completion (SMC) and Singular Value Thresholding (SVT). The comparison metric used in the present paper include, accuracy, convergence time, and the nature of the input matrix. All of the presented methods have their advantages and disadvantages based on the problem. In the present paper, the detailed results are presented for synthetic data and the Jester data. While Eigentaste needs at least few fully filled columns to complete the sparse matrix, SMC and SVT does not have that limitation. Between SMC and SVT, SMC provides better accuracy but is much slower than the SVT. Detailed comparison of the methods is presented in the later sections.
+Recommender systems, such as those found on Netflix and Amazon,
+aggregate data across millions of users to make individualized product
+suggestions. Each user provides some data about items he or she is
+interested in, typically in the form of ratings or clicks, and the
+system predicts ratings for unseen items by leveraging data from other
+users. Thinking of users as rows and items as columns in a large
+matrix, we can formalize these types of problems as \emph{matrix
+completion} from a few observed entries. We provide working
+implementations of two competing matrix completion algorithms,
+Spectral Matrix Completion (SMC) and Singular Value Thresholding
+(SVT), and evaluate them on both synthetic and real-world datasets. We
+compare their performance against simple baselines, including
+Eigentaste, k-nearest neighbors, and item mean. Our comparisons
+demonstrate the differences in accuracy and time complexity of these
+methods for many problem sizes and structures. All of the presented
+methods have their own problem-dependent advantages and disadvantages.
+However, in our evaluation on the real-world Jester jokes dataset, we
+find that SMC and SVT greatly outperform Eigentaste, an algorithm
+specifically designed to leverage special structure in the Jester
+dataset. This performance boost likely comes from the fact that SMC
+and SVT leverage more data overall when making predictions. Between
+SMC and SVT, SMC provides better accuracy but is much slower than SVT.

@@ -1,6 +1,6 @@
 \documentclass{article} % For LaTeX2e
 \usepackage{nips15submit_e,times}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{graphicx}
@@ -36,7 +36,7 @@ Jonathan Stroud \\
 \maketitle
 
 \begin{abstract}
-Matrix completion, is the task of filling in the unknown entries of a sparse matrix. In the present paper, the baseline algorithms for matrix completion, such as eigentaste, nearest K-neighbor, and column mean are compared against the more sophisticated matrix completion algorithms, such as Spectral Matrix Completion (SMC) and Singular Value Thresholding (SVT). The comparison metric used in the present paper includes accuracy, convergence time, and the nature of the input matrix. All of the presented methods have their advantages and disadvantages based on the problem. In the present paper, the Normalized Mean Absolute Error (NMAE) are presented for synthetic data and the real-world data (Jester jokes dataset). While Eigentaste needs at least few fully filled columns to complete the sparse matrix, SMC and SVT does not have that limitation. Between SMC and SVT, SMC provides better accuracy but is much slower than the SVT. 
+\input{abstract}
 \end{abstract}
 
 \section{Introduction}
@@ -82,28 +82,44 @@ equality constraints via semidefinite programming.
 
 Nuclear norm minimization has long been observed to produce fairly
 low-rank solutions~\cite{r11, r12, r26}, but only recently there was
-any theoretical basis for the instances where it produced the true minimum rank
-solution. One of the first papers to provide such foundation was~\cite{r24},
-where Recht, Fazel, and Parrilo developed probabilistic techniques to
-study average case behavior. They showed that the nuclear norm heuristic
-could solve most instances of the rank minimization problem when the
-number of linear constraints were sufficiently large. This inspired interest in theoretical guarantees for rank
-minimization, and these results lay the foundation for~\cite{r4}.
-Candes and Recht’s bounds were subsequently improved by Candes and Tao~\cite{r7} and Keshavan, Montanari, and Oh~\cite{keshavan2010matrix} to
-show that one could, in special cases, reconstruct a low-rank matrix
-by observing a set of entries of size at most a polylogarithmic factor
-larger than the intrinsic dimension of matrix.
+any theoretical basis for the instances where it produced the true
+minimum rank solution. One of the first papers to provide such
+foundation was~\cite{r24}, where Recht, Fazel, and Parrilo developed
+probabilistic techniques to study average case behavior. They showed
+that the nuclear norm heuristic could solve most instances of the rank
+minimization problem when the number of linear constraints was
+sufficiently large. This inspired interest in theoretical guarantees
+for rank minimization, and these results lay the foundation
+for~\cite{r4}. Candes and Recht’s bounds were subsequently improved by
+Candes and Tao~\cite{r7} and by Keshavan, Montanari, and
+Oh~\cite{keshavan2010matrix}. They show that one could, in special
+cases, reconstruct a low-rank matrix by observing a set of entries of
+size at most a polylogarithmic factor larger than the intrinsic
+dimension of matrix.
 
-To test the validity of these theoretical guarantees in practice, we
+To test the practical validity of these theoretical guarantees, we
 explore two competing algorithms for matrix completion via nuclear
-norm-minimization and compare their performance on collaborative
+norm minimization. We compare their performance on collaborative
 filtering baselines, using both synthetic and real-world data. The
 Singular Value Thresholding (SVT) algorithm was introduced in ``A
 Singular Value Thresholding Algorithm for Matrix Completion''
-\cite{cai2010singular}. Spectral Matrix Completion (SMC) was introduced
-in ``Matrix Completion from a Few Entries'' \cite{keshavan2010matrix}. 
+\cite{cai2010singular}. Spectral Matrix Completion (SMC) was
+introduced in ``Matrix Completion from a Few Entries''
+\cite{keshavan2010matrix}.
 
-In Section 2, we explain the methodology and parameters used for the SVT algorithm. Section 3 explains the SMC algorithm with detailed description of the steps involved. Section 4 explains the baseline algorithms used in the present paper, namely, Eigentaste, and K-nearest neighbor. In Section 5.1 and Section 5.2, we present a detailed comparison of the results for synthetic data and real-world data (Jester joke dataset) respectively. Section 5.3 contains the two-dimensional visualization of the Jester joke dataset. Section 6 presents the conclusions, with Section 7 giving a brief overview of the team memeber's efforts.  
+% I think this type of outline paragraph is uneccessary - a reader can
+% simply scan section names if they want an outline of the paper.
+
+%In Section 2, we explain the methodology and parameters used for the
+%SVT algorithm. Section 3 explains the SMC algorithm with detailed
+%description of the steps involved. Section 4 explains the baseline
+%algorithms used in the present paper, namely, Eigentaste, and
+%K-nearest neighbor. In Section 5.1 and Section 5.2, we present a
+%detailed comparison of the results for synthetic data and real-world
+%data (Jester joke dataset) respectively. Section 5.3 contains the
+%two-dimensional visualization of the Jester joke dataset. Section 6
+%presents the conclusions, with Section 7 giving a brief overview of
+%the team memeber's efforts.
 
 
 \section{Singular Value Thresholding}
@@ -118,7 +134,7 @@ problem
 \end{aligned}
 \end{equation*}
 where $\|\cdot\|_{*}$ is the \emph{nuclear norm}, or the sum of the
-singular values and $\mathcal{P}_\Omega (\cdot)$ is the projection
+singular values, and $\mathcal{P}_\Omega (\cdot)$ is the projection
 operator, which makes zero all entries $(i, j) \notin \Omega$.
 
 Singular Value Thresholding works in an iterative, alternating fashion
@@ -144,23 +160,21 @@ this as
 \end{equation*}
 
 
-These two operations when repeated, approach a low-nuclear norm
-solution by repeatedly shrinking the singular values of X. This
+When applied repeatedly, these steps, approach a low-nuclear norm
+solution by steadily shrinking the singular values of X. This
 algorithm has shown success in recovering accurate low-rank solutions
 when the source of $M$ is also low-rank, even though it does not
-optimize this objective directly. The original authors discuss its
-theoretical guarantees in detail, but we choose to omit them in this
-discussion.
+optimize this objective directly.
 
 SVT has hyperparameters that must be carefully tuned to guarantee
 convergence. The shrinkage value $\tau$ must be set high in order for
 the algorithm to converge, but not too high that it exceeds the true
-singular values. The stepsize $\delta_k$ are similarly sensitive. The
-stepsize can be set dynamically as well, though we choose to maintain
-a fixed stepsize throughout. Furthermore, we compute the decomposition
-of $Y^K$ in batches, which introduces a new batch size parameter $l$
-that effects the speed of convergence. Also important is the
-initialization of $Y$, for which the authors provide helpful
+singular values. The stepsizes $\delta_k$ are similarly sensitive. The
+stepsize can be set dynamically or statically, though we choose to
+maintain a fixed stepsize throughout. Furthermore, we compute the
+decomposition of $Y^K$ in batches, which introduces a new batch size
+parameter $l$ that effects the speed of convergence. Also important is
+the initialization of $Y$, for which the authors provide helpful
 strategies. Finally, we use the relative error
 $\|\mathcal{P}_{\Omega}(X^k-M)\|_F / \|P_{\Omega} (M)\|$ as a stopping
 criterion. We terminate when this drops below a small $\epsilon$.
@@ -195,10 +209,10 @@ steps.
 
 \subsection{Trimming}
 In the trimming step, we throw out information in order to make the
-underlying true-rank structure more apparent. First, we zero all
-columns in $M^E$ with degree larger than $2|E|/n$ and set to zero all
-rows with degree larger than $2|E|/m$, where $|E|$ is the number of
-non-zero entries in $M$. This step is crucially important when the
+underlying true-rank structure more apparent. First, we set to zero
+all columns in $M^E$ with degree larger than $2|E|/n$ and set to zero
+all rows with degree larger than $2|E|/m$, where $|E|$ is the number
+of non-zero entries in $M$. This step is crucially important when the
 number of revealed entries per row/column follows a heavy tail
 distribution, as is the case for most of the real data.
 
@@ -251,7 +265,7 @@ completion.
 
 \subsection{Eigentaste}
 
-Eigentaste~\cite{r31} is an another collaborative filtering algorithm specifically
+Eigentaste \cite{r31} is an another collaborative filtering algorithm specifically
 designed for the Jester Dataset. It relies on the assumption that a
 subset of the columns will be dense, corresponding to a few ``seed''
 items which every user is required to review. Eigentaste applies
@@ -274,7 +288,8 @@ matrix is given by
 C=\frac{1}{n-1}A^{T}A=E^{T} \Lambda E
 \end{equation*}
 
-The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
+The data is projected along the first $v$ eigenvectors
+$x=R{E_{v}}^{T}$. The algorithm then proceeds as follows.
 
 \textit{Recursive Rectangular Clustering: }
 
@@ -286,52 +301,47 @@ The data is projected along the first v eigenvectors $x=R{E_{v}}^{T}$
   sub-cells at next hierarchical level.
 \end{enumerate}
 
- \textit{Online Computation of Recommendations}
-
-\begin{enumerate}
-\item Collect ratings of all items in gauge set.
-\item Use PCA to project this vector to eigenplane.
-\item Find the representative cluster.
-\item Look up appropriate recommendations, present them to the new
-  user, and collect ratings.
-\end{enumerate}
+When a new user arrives, Eigentaste collects their ratings on the seed
+set and projects them into the 2-dimensional eigenplane. The user is
+then placed in a cluster, and recommendations are given based on the
+average ratings of other users in the same cluster.
 
 \subsection{K-Nearest Neighbors}
-In the K-Nearest Neighbors algorithm, we predicts ratings based on the
+In the K-Nearest Neighbors algorithm, we predict ratings based on the
 mean ratings of each person's nearest neighbors.
 \begin{equation*}
   p_{ij}=\overline{r_{i}}+\kappa\sum_{k=1}^n w(i,p)(\overline{r_{pj}}-\overline{r_{p}})
 \end{equation*}
 where $\overline{r_{i}}$ is the average joke rating for user i, and
 $\kappa$ is a normalizing factor ensuring that the absolute value of
-the weights sum to 1. We used a function of Euclidean distance from user i to
-user p as the weight w(i, p), and $\kappa$ = $\sum_{k=1}^n w(i,p)$.
-Specifically, if we are interested in q nearest neighbors, $w(i; p) =
-d(i, q +1)- d(i, p)$. This ensures that i’s closest neighbor has the
-largest weight. In the present paper, we are using $K=50$ as the baseline algorithm to compare against more sophisticated algorithms.
+the weights sum to 1. We used a function of Euclidean distance from
+user $i$ to user $p$ as the weight $w(i, p)$, and $\kappa$ =
+$\sum_{k=1}^n w(i,p)$. Specifically, if we are interested in $q$
+nearest neighbors, $w(i; p) = d(i, q +1)- d(i, p)$. This ensures that
+i’s closest neighbor have the largest weight. In our experiments, we
+use a neighborhood size of $K=50$.
 
 \section{Experimental Results}
 
 \subsection{Synthetic Data}
 
-The performance of the SVT and SMC algorithms were compared on
-synthetically generated matrices of varying ranks, sizes and sparsity.
-Specifically, the algorithms were tested on all combinations of matrix
-size (1000, 5000), rank (5, 10 and 20), and sparsity (30\%, 50\% and
-70\%). As a baseline to SVT and SMC, a column mean matrix completion
-method was implemented. This method predicts the average column value
-for all missing entries. In the Tables 1,~\ref{Time} the mean
-absolute error and the run time is averaged over the categories of
-size, rank, and sparsity. For example, out of the eighteen tests that
-were run, nine tests include the matrix of size 1000 $\times$ 1000. Therefore
-the mean absolute error value for all nine tests are averaged in order
-to represent the values in the size 1000 column of the table below.
-Mean absolute error is the absolute value of the average error on the
-unknown entries. Run time is measured in seconds and all simulations
-were run at University of Michigan's CAEN lab computers (8GB memory
-with one core i7 processors). The columns in
-Tables 1,~\ref{Time} contain the averaged mean absolute error
-and the run time for all experiments.
+We compare the performance of SVT and SMC on synthetically generated
+matrices of varying ranks, sizes and sparsity. Specifically, the
+algorithms were tested on all combinations of matrix size (1000,
+5000), rank (5, 10 and 20), and sparsity (30\%, 50\% and 70\%). We
+compare the performance of SVT and SMC, with a simple baseline, the
+column mean, which predicts the average column value for all missing
+entries. In Table ~\ref{Time} the mean absolute error and the run time
+is averaged over the categories of size, rank, and sparsity. For
+example, out of the eighteen tests that were run, nine tests include
+the matrix of size 1000 $\times$ 1000. Therefore the mean absolute
+error value for all nine tests are averaged in order to represent the
+values in the size 1000 column of the table below. Mean absolute error
+is the absolute value of the average error on the unknown entries. Run
+time is measured in seconds and all simulations were run at University
+of Michigan's CAEN lab computers (8GB memory with one core i7
+processors). The columns in Tables 1,~\ref{Time} contain the averaged
+mean absolute error and the run time for all experiments.
 
 
 
@@ -423,7 +433,6 @@ tested rank value, SMC runs 9.6 times slower than SVT.
  \label{Time}
 \end{table}
 
-Since the baseline algorithms (Eigentaste) needs at least few fully filled columns, we did not use baseline algorithms to compare the synthetic data. However, we use the baseline algorithms to compare in the next section with Jester joke datatset. 
 
 \subsection{Jester Dataset}
 
@@ -432,24 +441,28 @@ from 73,421 users \cite{r30}. A set of 10 ``seed'' jokes were chosen
 to be presented to users before any others, and users that did not
 rate all of the seed jokes were discarded. This leaves us with 10
 completely dense columns, allowing us to apply both supervised
-learning algorithms (Eigentaste, K-nearest neighbor) and matrix completion algorithms
-(SVT, SMC). We hypothesize that the matrix completion algorithms will
-outperform those that only take advantage of the dense columns because
-matrix completion algorithms are capable of utilizing all data during training.
+learning algorithms (Eigentaste, K-nearest neighbor) and matrix
+completion algorithms (SVT, SMC). We hypothesize that the matrix
+completion algorithms will outperform those that only take advantage
+of the dense columns because matrix completion algorithms are capable
+of utilizing all data during training.
 
 For the purpose of evaluation we randomly select subsets of 100, 200,
 and 1000 users' ratings from the Jester Dataset. We choose two ratings
 at random from each user as test points and leave the remainder for
-training. We evaluate four algorithms, Eigentaste, k-nearest neighbor ($K = 50$), SMC, and SVT,
-using the Normalized Mean Absolute Error (NMAE) of the reconstruction
-on the test points, similar to~\cite{oh2010thesis}.
+training. We evaluate four algorithms, Eigentaste, k-nearest neighbor
+($K = 50$), SMC, and SVT, using the Normalized Mean Absolute Error
+(NMAE) of the reconstruction on the test points, similar
+to~\cite{oh2010thesis}.
 
 The NMAE, a commonly used performance metric in collaborative
 filtering, is defined in terms of The Mean Absolute Error (MAE):
 \begin{equation}
 MAE = \frac{1}{|T|}\sum\limits_{(u,i) \in T} |M_{ui} - \widetilde{M}_{ui}|
 \end{equation}
-where $M_{ui}$ is the original ratings, $\widetilde{M}_{ui}$ is the predicted rating for user $u$, item $i$, and $T$ is the test set. The NMAE can be defined as:
+where $M_{ui}$ is the original ratings, $\widetilde{M}_{ui}$ is the
+predicted rating for user $u$, item $i$, and $T$ is the test set. The
+NMAE can be defined as:
 \begin{equation}
 NMAE = \frac{MAE}{M_{max}-M_{min}}
 \end{equation}
@@ -473,11 +486,17 @@ $[-10,10]$.
 %\label{Geo}
 %\end{figure}
 
-Table~\ref{Compare} compares the NMAE for different number of users with all the four algorithms, namely, SMC, SVT, Eigentaste, and K-nearest neighbor. As noted from table~\ref{Compare}, SMC performs the best for all the different size of users. Another point to note that, generally, NMAE keeps increasing with the matrix size. Thus, in Table~\ref{SMC}, we present detailed numerical results on the Jester joke dataset with the SMC algorithm.
+Table~\ref{Compare} compares the NMAE for different numbers of users
+with all four algorithms, namely, SMC, SVT, Eigentaste, and K-nearest
+neighbors. As noted from table~\ref{Compare}, in terms of NMAE, SMC
+performs best across the board. Another point to note that, generally,
+NMAE keeps increasing with the matrix size. Thus, in Table~\ref{SMC},
+we present detailed numerical results on the Jester joke dataset with
+the SMC algorithm.
 
 \begin{table} [h]
 \centering
-  \caption{NMAE comparison on the Jester joke dataset for SMC, SVT, Eigentaste, and K-nearest neighbour algorithms.}
+\caption{NMAE comparison on the Jester joke dataset for SMC, SVT, Eigentaste, and K-nearest neighbor algorithms.}
  \begin{tabular}{l l | l l l l}% p{2cm}}
   \hline \hline
    & & \mc{3}{c}{NMAE}\\
@@ -509,8 +528,6 @@ Table~\ref{Compare} compares the NMAE for different number of users with all the
 \label{SMC}
 \end{table}
 
-To conclude, for the Jester joke dataset SMC algorithm performs best (in terms of NMAE) amongst the algorithms we compared against. 
-
 \subsubsection{Visualization}
 
 Each of the algorithms compared previously rely on the assumption that
@@ -523,93 +540,124 @@ Thresholding solution.
 \begin{figure} [h]
 \centering
 \includegraphics[width = 0.75\textwidth]{jokes_2d_2.pdf}
-\begin{tabular}{c | l}
-\hline \hline
-Joke \# & Joke Text \\ \hline
-  8     & Q. Did you hear about 
-the dyslexic devil worshiper? \\
-        & A. He sold his soul to Santa.\\ \hline
-  26 & A guy walks into a bar and sits down next to an extremely
-       gorgeous woman. The first \\
-     & thing he notices about her though, are her pants. They were
-       skin-tight, high-waisted \\
-     & and had no obvious mechanism (zipper, buttons or velcro) for opening them. \\
-     & After several minutes of puzzling over how she got the pants up over
-       her hips, he finally \\
-     & worked up the nerve to ask her. "Excuse me miss, but how do you get into your pants?" \\ 
-     & "Well," she replied, "you can start by buying me a drink."\\ \hline
-  29 & An old Scotsmen is sitting with a younger Scottish gentleman
-       and says the \\
-     &  boy. "Ah, lad look out that window. You see that stone wall
-       there, I built it \\
-     & with me own bare hands, placed every stone meself. But do they
-       call me MacGregor \\
-     & the wall builder? No! \\
-     & He Takes a few sips of his beer then says, "Aye, and look out
-       on that lake and \\
-     & eye that beautiful pier. I built it meself, laid every board
-       and hammered each nail \\
-     & but do they call me MacGregor the pier builder? No! \\
-     & He continues..."And lad, you see that road? That too I build with me
-       own bare hands. \\
-     & Laid every inch of pavement meself, but do they
-       call MacGregor the road builder? No!" \\
-     & Again he returns to his beer for a few sips, then says,
-       "Agh, but you screw  one sheep..." \\ \hline
-  18 & A dog walks into Western Union and asks the clerk to send a
-       telegram. He fills out a \\
-     & form on which he writes down the telegram he wishes to send:
-       "Bow wow wow, Bow wow wow." \\
-     & The clerk says, "You can add another 'Bow wow' for the same
-       price."\\
-     & The dog responded, "Now wouldn't that sound a little silly?"\\ 
-\hline \hline
-\end{tabular}
-
 \caption{Two-dimensional projection of the Jester joke dataset. The
   horizontal and vertical axes correspond to the directions of the
   first and second eigenvectors, respectively, of the completed matrix
-  found by the SVT algorithm on the full Jester dataset. Also given
-  are the most extreme jokes in each direction, which characterize the
-  axes.}
+  found by the SVT algorithm on the full Jester dataset. In Table
+  \ref{joketexts} we give the most extreme jokes in each direction,
+  which characterize the axes.}
 \label{jokes2d}
 \end{figure}
 
 In figure~\ref{jokes2d} we find that the two principal components in
 the space of jokes correspond to short, simple puns (left) versus
-longer, complex jokes (right), and rowdy jokes (top) versus clean
+longer, complex jokes (right), and dirty jokes (top) versus clean
 jokes (bottom). Only a few jokes are given here, but at closer
-inspection these observations seem to hold true in general.
+inspection these observations seem to hold true in general
+\footnote{Jester dataset:
+  http://www.ieor.berkeley.edu/~goldberg/jester-data/}
 
 
 \section{Conclusions}
 
-In the present paper, we explained various algorithms to solve matrix completion problem. In particular, we focused on Spectral Matrix Completion (SMC) algorithm and Spectral Value Thresholding (SVT) algorithm. We compared these sophisticated algorithm with various baseline algorithms, namely, column mean, eigentaste, and K-nearest neighbor algorithm. 
-We checked the performance of the algorithms with synthetic data, with varying size, rank, and sparsity of the input matrix. We concluded that both SMC and SVT performs better than the baseline column-mean algorithm. Between SMC and SVT, while the SMC attains better accuracy than SVT, SMC takes longer time to converge than SVT. 
-For the Jester joke dataset, we compared NMAE (Normalized Mean Absolute Error) for different users ({100, 200, 1000}) on SMC, SVT, Eigentaste, and K-nearest neighbor (with $K=50$). We concluded that the SMC performs the best (in terms for NMAE) for all the user sets selected in this paper. In terms of NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest neighbor. This trend follows the intuition as well.
-Lastly, we present a two dimensional representation of the entire 100 jokes in the Jester joke datatset. We went through the jokes individually, and tried to guess the axes to the best of our abilities. It seems it follows the general trend, as explained in the paper.
+We have presented two algorithms for matrix completion, Spectral
+Matrix Completion (SMC) and Spectral Value Thresholding (SVT). We
+compared these sophisticated algorithms with various baselines, namely
+column mean, eigentaste, and K-nearest neighbors. The comparisons are
+performed with both real and synthetic data, with varying size, rank,
+and sparsity. We concluded that both SMC and SVT outperform the
+baseline methods. Between SMC and SVT, SMC attains better accuracy
+than SVT, but at additional computational cost. For the Jester joke
+dataset, we compared NMAE (Normalized Mean Absolute Error) for
+different dataset sizes ({100, 200, 1000} user) on SMC, SVT,
+Eigentaste, and K-nearest neighbor (with $K=50$). Spectral Matrix
+Completion, an algorithm that directly minimizes the reconstruction
+error, unsurprisingly leads to the best NMAE performance. In terms of
+NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest
+neighbor. This trend follows the intuition as well.
 
+Lastly, we presented a qualitative analysis of the low-rank assumption
+central to all of our matrix completion methods. We project the 100
+jokes from the Jester dataset into a two-dimensional plane and based
+on the top two eigenvectors learned by the SVT algorithm. We examine
+the organization of jokes in this space, and assign meaningful labels
+to the axes learned by our methods. We find that the low-rank
+assumption does in fact hold true for the Jester Dataset, as most of
+the dimensionality is explained by the first two eigenvectors.
 
 
 \section{Group Member's Accomplishments}
 
-All team members participated in all aspects of the project as well as the final report. However, each member was
-responsible for taking the lead on specific tasks. All team members contributed towards the literature review as well. Sriram implemented Eigentaste and K-nearest neighbor. He also had a leading role in the comparison of the methods on the Jester dataset. Nitin and Jeeheh lead the implementation of the SMC algorithm. Jeeheh took charge of the performance comparison on synthetic data. Nitin got the performance metric for different algorithms and  also carried out integration of the final report. Jonathan was in command of implementing the SVT algorithm and the two dimensional visualizations of the Jester dataset. He also contributed in comparing various algorithms for the synthetic dataset.
-\\
-\\
-\\
-\\
-\\
-\\
-\\
-\\
-\\
-\\
-\\
-\\
+All team members participated in all aspects of the project as well as
+the final report. However, each member was responsible for taking the
+lead on specific tasks. All team members contributed towards the
+literature review as well. Sriram implemented Eigentaste and K-nearest
+neighbor. He also had a leading role in the comparison of the methods
+on the Jester dataset. Nitin and Jeeheh lead the implementation of the
+SMC algorithm. Jeeheh took charge of the performance comparison on
+synthetic data. Nitin got the performance metric for different
+algorithms and also carried out integration of the final report.
+Jonathan was in command of implementing the SVT algorithm and the two
+dimensional visualizations of the Jester dataset. He also contributed
+in comparing various algorithms for the synthetic dataset.
 
 
 \bibliographystyle{plain}
 \bibliography{writeup}
+
+\newpage
+
+\section{Appendix: Joke Texts}
+
+
+\begin{table} [h]
+  \caption{Selection of jokes from the Jester dataset corresponding to
+    the extremes of the two principal eigenvalues found by SVT. For space reasons, we omit the full text of most jokes.}
+\begin{tabular}{c | l}
+\hline \hline
+Joke \# & Joke Text \\ \hline
+  8     & Q. Did you hear about the dyslexic devil worshiper? \\
+(simple)& A. He sold his soul to Santa.\\ \hline
+  26 & A guy walks into a bar and sits down next to an extremely
+       gorgeous woman. The first \\
+(complex)& thing he notices about her though, are her pants. They were
+       skin-tight, high-waisted \\
+     & and had no obvious mechanism (zipper, buttons or velcro) for opening them. \\
+     & After several minutes of puzzling over how she got the pants up over
+       her hips, he finally \\
+     & worked up the nerve to ask her. ``Excuse me miss, but how do you get into your pants?'' \\ 
+     & ``Well,'' she replied, ``you can start by buying me a drink.''\\ \hline
+  18 & A dog walks into Western Union and asks the clerk to send a
+       telegram. He fills out a \\
+(clean)& form on which he writes down the telegram he wishes to send:
+       ``Bow wow wow, \\
+     &  Bow wow wow.'' \\
+     & The clerk says, ``You can add another 'Bow wow' for the same
+       price.''\\
+     & The dog responded, ``Now wouldn't that sound a little silly?''\\ \hline
+  29 & An old Scotsmen is sitting with a younger Scottish gentleman
+       and says the \\
+(dirty)&  boy. ``Ah, lad look out that window. You see that stone wall
+       there, I built it \\
+     & with me own bare hands, placed every stone meself. But do they
+       call me MacGregor \\
+     & the wall builder? No!'' \\
+     & He Takes a few sips of his beer then says, ``Aye, and look out
+       on that lake and \\
+     & eye that beautiful pier. I built it meself, laid every board
+       and hammered each nail \\
+     & but do they call me MacGregor the pier builder? No!'' \\
+     & He continues...``And lad, you see that road? That too I build with me
+       own bare hands. \\
+     & Laid every inch of pavement meself, but do they
+       call MacGregor the road builder? No!''\\
+     & Again he returns to his beer for a few sips, then says,
+       `` Agh, but you screw  one sheep...''\\
+\hline \hline
+\end{tabular}
+\label{joketexts}
+\end{table}
+
+
 
 \end{document}
