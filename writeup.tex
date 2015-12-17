@@ -66,7 +66,7 @@ reduction~\cite{r20, r28} and multi-task learning~\cite{r2, r22}. This
 problem turns out to be computationally hard. In fact, rank
 minimization is NP-hard, meaning that is at least as hard as all those
 that can be solved by a nondeterministic Turing machine in polynomial
-time, like the Hamiltonian Cycle and Traveling Salesman problems. In
+time, like the Hamiltonian Cycle~\cite{plesn} and Traveling Salesman problems~\cite{lawler1985}. In
 both theory and practice, all algorithms that perform this task have
 time complexity exponential in the size of the matrix.
 
@@ -106,21 +106,6 @@ Singular Value Thresholding Algorithm for Matrix Completion''
 \cite{cai2010singular}. Spectral Matrix Completion (SMC) was
 introduced in ``Matrix Completion from a Few Entries''
 \cite{keshavan2010matrix}.
-
-% I think this type of outline paragraph is uneccessary - a reader can
-% simply scan section names if they want an outline of the paper.
-
-%In Section 2, we explain the methodology and parameters used for the
-%SVT algorithm. Section 3 explains the SMC algorithm with detailed
-%description of the steps involved. Section 4 explains the baseline
-%algorithms used in the present paper, namely, Eigentaste, and
-%K-nearest neighbor. In Section 5.1 and Section 5.2, we present a
-%detailed comparison of the results for synthetic data and real-world
-%data (Jester joke dataset) respectively. Section 5.3 contains the
-%two-dimensional visualization of the Jester joke dataset. Section 6
-%presents the conclusions, with Section 7 giving a brief overview of
-%the team memeber's efforts.
-
 
 \section{Singular Value Thresholding}
 
@@ -280,8 +265,7 @@ Mean rating of the jth item in the gauge set is given by
 \begin{equation*}
 \sigma_j^2=\frac{1}{n-1}{\sum_{i\epsilon U_{j}}}({\widetilde{r}_{ij}-\mu_{j}})^{2}
 \end{equation*}
-
-In A, the normalized rating $r_{ij}$ is set to
+where $\widetilde{r}_{ij}$ is the user rating of item $j$ by user $i$, $\mu_{j}$ and $\sigma_j$ is the mean and variance of the item $j$, respectively. In A, the normalized rating $r_{ij}$ is set to
 $({\widetilde{r}_{ij}-\mu_{j}})/\sigma _{j}$ . The global correlation
 matrix is given by
 \begin{equation*}
@@ -555,7 +539,7 @@ longer, complex jokes (right), and dirty jokes (top) versus clean
 jokes (bottom). Only a few jokes are given here, but at closer
 inspection these observations seem to hold true in general
 \footnote{Jester dataset:
-  http://www.ieor.berkeley.edu/~goldberg/jester-data/}
+  http://www.ieor.berkeley.edu/~goldberg/jester-data/}.
 
 
 \section{Conclusions}
@@ -644,7 +628,7 @@ Joke \# & Joke Text \\ \hline
      & the wall builder? No!'' \\
      & He Takes a few sips of his beer then says, ``Aye, and look out
        on that lake and \\
-     & eye that beautiful pier. I built it meself, laid every board
+     & eye that beautiful pier. I built it myself, laid every board
        and hammered each nail \\
      & but do they call me MacGregor the pier builder? No!'' \\
      & He continues...``And lad, you see that road? That too I build with me
@@ -657,7 +641,5 @@ Joke \# & Joke Text \\ \hline
 \end{tabular}
 \label{joketexts}
 \end{table}
-
-
 
 \end{document}
