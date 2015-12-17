@@ -1,9 +1,10 @@
 \documentclass{article} % For LaTeX2e
 \usepackage{nips15submit_e,times}
-%\usepackage{hyperref}
+\usepackage{hyperref}
 \usepackage{url}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{placeins}
 \usepackage{multicol, multirow, array}
 
 \newcommand{\mc}[2]{\multicolumn{#1}{#2}}
@@ -542,6 +543,34 @@ inspection these observations seem to hold true in general
   http://www.ieor.berkeley.edu/~goldberg/jester-data/}.
 
 
+
+\section{Conclusions}
+
+We have presented two algorithms for matrix completion, Spectral
+Matrix Completion (SMC) and Spectral Value Thresholding (SVT). We
+compared these sophisticated algorithms with various baselines, namely
+column mean, eigentaste, and K-nearest neighbors. The comparisons are
+performed with both real and synthetic data, with varying size, rank,
+and sparsity. We concluded that both SMC and SVT outperform the
+baseline methods. Between SMC and SVT, SMC attains better accuracy
+than SVT, but at additional computational cost. For the Jester joke
+dataset, we compared NMAE (Normalized Mean Absolute Error) for
+different dataset sizes ({100, 200, 1000} user) on SMC, SVT,
+Eigentaste, and K-nearest neighbor (with $K=50$). Spectral Matrix
+Completion, an algorithm that directly minimizes the reconstruction
+error, unsurprisingly leads to the best NMAE performance. In terms of
+NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest
+neighbor. This trend follows the intuition as well.
+
+Lastly, we presented a qualitative analysis of the low-rank assumption
+central to all of our matrix completion methods. We project the 100
+jokes from the Jester dataset into a two-dimensional plane and based
+on the top two eigenvectors learned by the SVT algorithm. We examine
+the organization of jokes in this space, and assign meaningful labels
+to the axes learned by our methods. We find that the low-rank
+assumption does in fact hold true for the Jester Dataset, as most of
+the dimensionality is explained by the first two eigenvectors.
+
 \begin{table} [h]
   \caption{Selection of jokes from the Jester dataset corresponding to
     the extremes of the two principal eigenvalues found by SVT. For space reasons, we omit the full text of most jokes.}
@@ -589,33 +618,7 @@ Joke \# & Joke Text \\ \hline
 \end{tabular}
 \label{joketexts}
 \end{table}
-
-\section{Conclusions}
-
-We have presented two algorithms for matrix completion, Spectral
-Matrix Completion (SMC) and Spectral Value Thresholding (SVT). We
-compared these sophisticated algorithms with various baselines, namely
-column mean, eigentaste, and K-nearest neighbors. The comparisons are
-performed with both real and synthetic data, with varying size, rank,
-and sparsity. We concluded that both SMC and SVT outperform the
-baseline methods. Between SMC and SVT, SMC attains better accuracy
-than SVT, but at additional computational cost. For the Jester joke
-dataset, we compared NMAE (Normalized Mean Absolute Error) for
-different dataset sizes ({100, 200, 1000} user) on SMC, SVT,
-Eigentaste, and K-nearest neighbor (with $K=50$). Spectral Matrix
-Completion, an algorithm that directly minimizes the reconstruction
-error, unsurprisingly leads to the best NMAE performance. In terms of
-NMAE, SMC is followed by SVT, then Eigentaste, and lastly, K-nearest
-neighbor. This trend follows the intuition as well.
-
-Lastly, we presented a qualitative analysis of the low-rank assumption
-central to all of our matrix completion methods. We project the 100
-jokes from the Jester dataset into a two-dimensional plane and based
-on the top two eigenvectors learned by the SVT algorithm. We examine
-the organization of jokes in this space, and assign meaningful labels
-to the axes learned by our methods. We find that the low-rank
-assumption does in fact hold true for the Jester Dataset, as most of
-the dimensionality is explained by the first two eigenvectors.
+\FloatBarrier
 
 
 \section{Group Member's Accomplishments}
